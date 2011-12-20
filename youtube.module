@@ -1,0 +1,22 @@
+<?php
+/**
+ * @file
+ * Youtube field module adds a field for youtube videos.
+ */
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function youtube_field_widget_info() {
+  return array(
+    'youtube_widget' => array(
+      'label' => t('YouTube field'),
+      'field types' => array('file'),
+      'settings' => array('size' => 60),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+        'default value' => FIELD_BEHAVIOR_DEFAULT,
+      ),
+    ),
+  );
+}
