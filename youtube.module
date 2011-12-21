@@ -14,8 +14,8 @@ function youtube_field_info() {
     'youtube' => array(
       'label' => t('YouTube video'),
       'description' => t('A video hosted on YouTube.'),
-      'default_widget' => 'youtube_link',
-      'default_formatter' => 'youtube_thumbnail',
+      'default_widget' => 'youtube',
+      'default_formatter' => 'youtube_video',
     ),
   );
 }
@@ -25,13 +25,22 @@ function youtube_field_info() {
  */
 function youtube_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
   foreach ($items as $delta => $item) {
-    if (!empty($item['youtube'])) {
+    if (!empty($item['input'])) {
 
-      // TODO find out how to validate a YouTube URL
-      if (FALSE) {
+      $valid = FALSE;
+      // The video URL can be in the format http://www.youtube.com/watch?v=1SqBdS0XkV4
+      if (strstr($item['input'], 'youtube.com/watch?v=')) {
+        $valid = TRUE;
+      }
+      // The video URL can be in the format http://youtu.be/1SqBdS0XkV4
+      elseif (strstr($item['input'], 'youtu.be/')) {
+        $valid = TRUE;
+      }
+
+      if (!$valid) {
         $errors[$field['field_name']][$langcode][$delta][] = array(
           'error' => 'youtube_invalid',
-          'message' => t('The URL provided must be a valid YouTube video.'),
+          'message' => t('Please provide a valid YouTube URL.'),
         );
       }
     }
@@ -42,7 +51,7 @@ function youtube_field_validate($entity_type, $entity, $field, $instance, $langc
  * Implements hook_field_is_empty().
  */
 function youtube_field_is_empty($item, $field) {
-  return empty($item['youtube']);
+  return empty($item['input']);
 }
 
 /**
@@ -50,16 +59,16 @@ function youtube_field_is_empty($item, $field) {
  */
 function youtube_field_formatter_info() {
   $formatters =  array(
-    // This formatter just displays a thumbnail for your video.
-    'youtube_thumbnail' => array(
-      'label' => t('YouTube Thumbnail'),
-      'field types' => array('youtube'),
-      'settings' => array('image_style' => ''),
-    ),
-    // This formatter displays your youtube video embed code.
+    // This formatter displays your youtube video.
     'youtube_video' => array(
       'label' => t('YouTube video'),
       'field types' => array('youtube'),
+    ),
+    // This formatter just displays a thumbnail for your video.
+    'youtube_thumbnail' => array(
+      'label' => t('YouTube thumbnail'),
+      'field types' => array('youtube'),
+      'settings' => array('image_style' => ''),
     ),
   );
 
@@ -92,19 +101,20 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  $image_styles = image_style_options(FALSE);
-  // Unset possible 'No defined styles' option.
-  unset($image_styles['']);
-  // Styles could be lost because of enabled/disabled modules that defines
-  // their styles in code.
-  if (isset($image_styles[$settings['image_style']])) {
-    $summary = t('Image style: @style', array('@style' => $image_styles[$settings['image_style']]));
-  }
-  else {
-    $summary = t('Original image');
-  }
+  // We only need a summary for the thumbnail style.
+  if ($display['type'] == 'youtube_thumbnail') {
+    $image_styles = image_style_options(FALSE);
+    // Unset possible 'No defined styles' option.
+    unset($image_styles['']);
+    if (isset($image_styles[$settings['image_style']])) {
+      $summary = t('Image style: @style', array('@style' => $image_styles[$settings['image_style']]));
+    }
+    else {
+      $summary = t('Original image');
+    }
 
-  return $summary;
+    return $summary;
+  }
 }
 
 /**
@@ -114,33 +124,23 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
   $element = array();
 
   switch ($display['type']) {
-    // This formatter simply outputs the field as text and with a color.
+    // This formatter simply outputs the youtube embed code.
+    case 'youtube_video':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#theme' => 'youtube_video',
+          '#video_id' => $item,
+        );
+      }
+      break;
+    
+    // This formatter uses an imagecache preset to generate a thumbnail.
     case 'youtube_thumbnail':
       foreach ($items as $delta => $item) {
         $element[$delta] = array(
           '#theme' => 'youtube_thumbnail',
           '#video_id' => $item,
           '#image_style' => $display['settings']['image_style'],
-        );
-      }
-      break;
-
-    // This formatter adds css to the page changing the '.region-content' area's
-    // background color. If there are many fields, the last one will win.
-    case 'youtube_video':
-      foreach ($items as $delta => $item) {
-        $element[$delta] = array(
-          '#type' => 'html_tag',
-          '#tag' => 'p',
-          '#value' => t('The content area color has been changed to @code', array('@code' => $item['youtube'])),
-          '#attached' => array(
-            'css' => array(
-              array(
-                'data' => 'div.region-content { background-color:' . $item['youtube'] . ';}',
-                'type' => 'inline',
-              ),
-            ),
-          ),
         );
       }
       break;
@@ -154,13 +154,9 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
  */
 function youtube_field_widget_info() {
   return array(
-    'youtube_link' => array(
-      'label' => t('YouTube URL'),
+    'youtube' => array(
+      'label' => t('YouTube'),
       'field types' => array('youtube'),
-    ),
-    'youtube_embed' => array(
-       'label' => t('YouTube embed code'),
-       'field types' => array('youtube'),
     ),
   );
 }
@@ -169,57 +165,58 @@ function youtube_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $value = isset($items[$delta]['rgb']) ? $items[$delta]['rgb'] : '';
+  $value = isset($items[$delta]['input']) ? $items[$delta]['input'] : '';
 
-  $widget = $element;
-  $widget['#delta'] = $delta;
+  $element += array(
+    '#type' => 'textfield',
+    '#default_value' => $value,
+    '#size' => 50,
+    '#maxlength' => 1024,
+    '#description' => t('Enter the YouTube URL (or Embed code). Valid URL formats include: http://www.youtube.com/watch?v=1SqBdS0XkV4, http://youtu.be/1SqBdS0XkV4'),
+    '#element_validate' => array('youtube_input_validate'),
+    //'#value_callback' => 'youtube_widget_value',
+  );
 
-  switch ($instance['widget']['type']) {
-
-    case 'youtube_link':
-      $widget += array(
-        '#type' => 'textfield',
-        '#default_value' => $value,
-        //'#size' => $instance['widget']['settings']['size'],
-        '#maxlength' => 1024,
-        //'#element_validate' => array('youtube_widget_validate'),
-        //'#value_callback' => 'youtube_widget_value',
-      );
-      break;
-
-    case 'youtube_embed':
-      $widget += array(
-        '#type' => 'textarea',
-        '#default_value' => $value,
-        '#rows' => 10,
-        //'#element_validate' => array('youtube_widget_validate'),
-        //'#value_callback' => 'youtube_widget_value',
-      );
-      break;
-
-  }
-
-  $element['youtube'] = $widget;
-  
-  return $element;
+  $video_id = isset($items[$delta]['video_id']) ? $items[$delta]['video_id'] : '';
+  $video_id_element = array(
+    '#markup' => t('this is your YouTube ID: ') . $video_id,
+  );
+  return array(
+    'input' => $element,
+    'video_id' => $video_id_element,
+  );
 }
 
 /**
- * Validate the field and then convert the value into a video id.
+ * 
  */
-function youtube_widget_validate($element, &$form_state) {
-  $delta = $element['#delta']; // TODO: Isn't there a better way to find out which element?
-  $field = $form_state['field'][$element['#field_name']][$element['#language']]['field'];
-  $field_name = $field['field_name'];
-  if (isset($form_state['values'][$field_name][$element['#language']][$delta]['youtube'])) {
-
-    // TODO make sure the video URL contains http://www.youtube.com/watch?v= 
-
-    // TODO strip off the number at the end and save as video_id
-    $video_id = '';
-
-    $value = $video_id;
-    form_set_value($element, $value, $form_state);
+function youtube_input_validate($element, &$form_state, $form) {
+  
+  $input = $element['#value'];
+  $valid = FALSE;
+  
+  if (strstr($input, 'youtube.com/watch?v=')) {
+    $valid = TRUE;
+    $anchor = '?v=';
+    $position = strpos($input, $anchor);
+    $video_id = trim(substr($input, $position + strlen($anchor)));
+  }
+  
+  // The video URL can be in the format http://youtu.be/1SqBdS0XkV4
+  elseif (strstr($input, 'youtu.be/')) {
+    $valid = TRUE;
+    $anchor = 'be/';
+    $position = strpos($input, $anchor);
+    $video_id = trim(substr($input, $position + strlen($anchor)));
+  }
+  
+  if ($valid) {
+    $video_id_element = array(
+      '#parents' => $element['#parents'],
+    );
+    array_pop($video_id_element['#parents']);
+    $video_id_element['#parents'][] = 'video_id';
+    form_set_value($video_id_element, $video_id, &$form_state);
   }
 }
 
@@ -228,7 +225,7 @@ function youtube_widget_validate($element, &$form_state) {
  */
 function youtube_field_widget_error($element, $error, $form, &$form_state) {
   switch ($error['error']) {
-    case 'field_example_invalid':
+    case 'youtube_invalid':
       form_error($element, $error['message']);
       break;
   }
@@ -242,24 +239,12 @@ function youtube_theme($existing, $type, $theme, $path) {
     'youtube_thumbnail' => array(
       'variables' => array('video_id' => NULL, 'image_style' => NULL),
       //'file' => 'youtube.theme.inc',
-    ), 
+    ),
     'youtube_video' => array(
       'variables' => array('video_id' => NULL), 
       //'file' => 'youtube.theme.inc',
-    ), 
+    ),
   );
-}
-
-/**
- * Theme function for thumbnails.
- */
-function theme_youtube_thumbnail($variables) {
-  $id = $variables['video_id'];
-  $style = $variables['image_style'];
-
-  $output = 'thumbnail';
-
-  return $output;
 }
 
 /**
@@ -269,6 +254,19 @@ function theme_youtube_video($variables) {
   $id = $variables['video_id'];
 
   $output = 'video';
+
+  return $output;
+}
+
+
+/**
+ * Theme function for thumbnails.
+ */
+function theme_youtube_thumbnail($variables) {
+  $id = $variables['video_id'];
+  $style = $variables['image_style'];
+
+  $output = 'thumbnail';
 
   return $output;
 }
