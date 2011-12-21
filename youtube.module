@@ -1,22 +1,274 @@
 <?php
+
 /**
  * @file
- * Youtube field module adds a field for youtube videos.
+ * Youtube field module adds a field for YouTube videos.
  */
+
+/**
+ * Implements hook_field_info().
+ */
+function youtube_field_info() {
+  return array(
+    // We name our field as the associative name of the array.
+    'youtube' => array(
+      'label' => t('YouTube video'),
+      'description' => t('A video hosted on YouTube.'),
+      'default_widget' => 'youtube_link',
+      'default_formatter' => 'youtube_thumbnail',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_validate().
+ */
+function youtube_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  foreach ($items as $delta => $item) {
+    if (!empty($item['youtube'])) {
+
+      // TODO find out how to validate a YouTube URL
+      if (FALSE) {
+        $errors[$field['field_name']][$langcode][$delta][] = array(
+          'error' => 'youtube_invalid',
+          'message' => t('The URL provided must be a valid YouTube video.'),
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function youtube_field_is_empty($item, $field) {
+  return empty($item['youtube']);
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function youtube_field_formatter_info() {
+  $formatters =  array(
+    // This formatter just displays a thumbnail for your video.
+    'youtube_thumbnail' => array(
+      'label' => t('YouTube Thumbnail'),
+      'field types' => array('youtube'),
+      'settings' => array('image_style' => ''),
+    ),
+    // This formatter displays your youtube video embed code.
+    'youtube_video' => array(
+      'label' => t('YouTube video'),
+      'field types' => array('youtube'),
+    ),
+  );
+
+  return $formatters;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function youtube_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $image_styles = image_style_options(FALSE);
+  $element['image_style'] = array(
+    '#title' => t('Image style'),
+    '#type' => 'select',
+    '#default_value' => $settings['image_style'],
+    '#empty_option' => t('None (original image)'),
+    '#options' => $image_styles,
+  );
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function youtube_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $image_styles = image_style_options(FALSE);
+  // Unset possible 'No defined styles' option.
+  unset($image_styles['']);
+  // Styles could be lost because of enabled/disabled modules that defines
+  // their styles in code.
+  if (isset($image_styles[$settings['image_style']])) {
+    $summary = t('Image style: @style', array('@style' => $image_styles[$settings['image_style']]));
+  }
+  else {
+    $summary = t('Original image');
+  }
+
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function youtube_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    // This formatter simply outputs the field as text and with a color.
+    case 'youtube_thumbnail':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#theme' => 'youtube_thumbnail',
+          '#video_id' => $item,
+          '#image_style' => $display['settings']['image_style'],
+        );
+      }
+      break;
+
+    // This formatter adds css to the page changing the '.region-content' area's
+    // background color. If there are many fields, the last one will win.
+    case 'youtube_video':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => t('The content area color has been changed to @code', array('@code' => $item['youtube'])),
+          '#attached' => array(
+            'css' => array(
+              array(
+                'data' => 'div.region-content { background-color:' . $item['youtube'] . ';}',
+                'type' => 'inline',
+              ),
+            ),
+          ),
+        );
+      }
+      break;
+  }
+
+  return $element;
+}
 
 /**
  * Implements hook_field_widget_info().
  */
 function youtube_field_widget_info() {
   return array(
-    'youtube_widget' => array(
-      'label' => t('YouTube field'),
-      'field types' => array('file'),
-      'settings' => array('size' => 60),
-      'behaviors' => array(
-        'multiple values' => FIELD_BEHAVIOR_DEFAULT,
-        'default value' => FIELD_BEHAVIOR_DEFAULT,
-      ),
+    'youtube_link' => array(
+      'label' => t('YouTube URL'),
+      'field types' => array('youtube'),
+    ),
+    'youtube_embed' => array(
+       'label' => t('YouTube embed code'),
+       'field types' => array('youtube'),
     ),
   );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $value = isset($items[$delta]['rgb']) ? $items[$delta]['rgb'] : '';
+
+  $widget = $element;
+  $widget['#delta'] = $delta;
+
+  switch ($instance['widget']['type']) {
+
+    case 'youtube_link':
+      $widget += array(
+        '#type' => 'textfield',
+        '#default_value' => $value,
+        //'#size' => $instance['widget']['settings']['size'],
+        '#maxlength' => 1024,
+        //'#element_validate' => array('youtube_widget_validate'),
+        //'#value_callback' => 'youtube_widget_value',
+      );
+      break;
+
+    case 'youtube_embed':
+      $widget += array(
+        '#type' => 'textarea',
+        '#default_value' => $value,
+        '#rows' => 10,
+        //'#element_validate' => array('youtube_widget_validate'),
+        //'#value_callback' => 'youtube_widget_value',
+      );
+      break;
+
+  }
+
+  $element['youtube'] = $widget;
+  
+  return $element;
+}
+
+/**
+ * Validate the field and then convert the value into a video id.
+ */
+function youtube_widget_validate($element, &$form_state) {
+  $delta = $element['#delta']; // TODO: Isn't there a better way to find out which element?
+  $field = $form_state['field'][$element['#field_name']][$element['#language']]['field'];
+  $field_name = $field['field_name'];
+  if (isset($form_state['values'][$field_name][$element['#language']][$delta]['youtube'])) {
+
+    // TODO make sure the video URL contains http://www.youtube.com/watch?v= 
+
+    // TODO strip off the number at the end and save as video_id
+    $video_id = '';
+
+    $value = $video_id;
+    form_set_value($element, $value, $form_state);
+  }
+}
+
+/**
+ * Implements hook_field_widget_error().
+ */
+function youtube_field_widget_error($element, $error, $form, &$form_state) {
+  switch ($error['error']) {
+    case 'field_example_invalid':
+      form_error($element, $error['message']);
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function youtube_theme($existing, $type, $theme, $path) {
+  return array(
+    'youtube_thumbnail' => array(
+      'variables' => array('video_id' => NULL, 'image_style' => NULL),
+      //'file' => 'youtube.theme.inc',
+    ), 
+    'youtube_video' => array(
+      'variables' => array('video_id' => NULL), 
+      //'file' => 'youtube.theme.inc',
+    ), 
+  );
+}
+
+/**
+ * Theme function for thumbnails.
+ */
+function theme_youtube_thumbnail($variables) {
+  $id = $variables['video_id'];
+  $style = $variables['image_style'];
+
+  $output = 'thumbnail';
+
+  return $output;
+}
+
+/**
+ * Theme function for videos.
+ */
+function theme_youtube_video($variables) {
+  $id = $variables['video_id'];
+
+  $output = 'video';
+
+  return $output;
 }
