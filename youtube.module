@@ -201,7 +201,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
       foreach ($items as $delta => $item) {
         $element[$delta] = array(
           '#theme' => 'youtube_thumbnail',
-          '#video_id' => $item,
+          '#video_id' => $item['video_id'],
           '#image_style' => $display['settings']['image_style'],
         );
       }
@@ -320,6 +320,8 @@ function theme_youtube_video($variables) {
   $https = variable_get('youtube_https', FALSE);
   $suggest = variable_get('youtube_suggest', TRUE);
   $privacy = variable_get('youtube_privacy', FALSE);
+  $size = variable_get('youtube_size', '420x315');
+  $dimensions = youtube_get_dimensions($size);
 
   // Protocol changes based on settings.
   $protocol = ($https) ? 'https' : 'http';
@@ -338,16 +340,12 @@ function theme_youtube_video($variables) {
   $domain = ($privacy) ? 'youtube-nocookie.com' : 'youtube.com';
 
   $path = $protocol . '://www.' . $domain . '/embed/' . $id;
-  $src = url($path, $query);
+  $src = url($path, array('query' => $query));
   
   if ($old) {
     $path = $protocol . '://www.' . $domain . '/v/' . $id;
-    $embed_src = url($embed_path, $query);
+    $embed_src = url($embed_path, array('query' => $query));
   }
-
-  // Dimensions change based on settings.
-  $size = variable_get('youtube_size', '420x315');
-  $dimensions = youtube_get_dimensions($size);
 
   if ($old) {
     $output = '<object width="' . $dimensions['width'] . '" 
@@ -377,9 +375,45 @@ function theme_youtube_thumbnail($variables) {
   $id = $variables['video_id'];
   $style = $variables['image_style'];
 
-  $output = 'thumbnail';
+  // Get YouTube settings.
+  $size = variable_get('youtube_size', '420x315');
+  $dimensions = youtube_get_dimensions($size);
 
-  return $output;
+  /* Get images by building correctly formed URL - kinda hackey.
+
+  // Full size image.
+  $path = 'http://img.youtube.com/vi/' . $id . '/0.jpg';
+  // Default image thumbnail.
+  $path = 'http://img.youtube.com/vi/' . $id . '/default.jpg';
+  // High Quality version of the default thumbnail.
+  $path = 'http://img.youtube.com/vi/' . $id . '/hqdefault.jpg';
+  // High Resolution version of the default thumbnail.
+  //$path = 'http://img.youtube.com/vi/' . $id . '/maxresdefault.jpg'; // May not work.
+  // First thumbnail.
+  $path = 'http://img.youtube.com/vi/' . $id . '/1.jpg';
+  // Second thumbnail.
+  $path = 'http://img.youtube.com/vi/' . $id . '/2.jpg';
+  // Third thumbnail.
+  $path = 'http://img.youtube.com/vi/' . $id . '/3.jpg';
+
+  $src = url($path);
+  */
+  
+  // Get the image via JSON API:
+  $path = 'http://gdata.youtube.com/feeds/api/videos/' . $id;
+  $query = array('v' => '2', 'alt' => 'jsonc');
+  $url = url($path, array('query' => $query));
+  $result = drupal_http_request($url);
+  $data = json_decode($result->data);
+  // Get the high quality default thumbnail.
+  $src = $data->data->thumbnail->hqDefault;
+  
+  // TODO copy filefield_sources ability to save a remote file lcoally.
+  // TODO use the UI setting for which preset to render the correct image style.
+
+  $img = '<img src="' . $src . '" alt="" />';
+
+  return $img;
 }
 
 /**
