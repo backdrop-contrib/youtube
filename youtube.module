@@ -4,6 +4,67 @@
  * @file
  * Youtube field module adds a field for YouTube videos.
  */
+ 
+/**
+ * Implements hook_menu().
+ */
+function youtube_menu() {
+  $items['admin/config/media/youtube'] = array(
+    'title' => 'YouTube settings', 
+    'page callback' => 'drupal_get_form', 
+    'page arguments' => array('youtube_settings_form'),
+    'access arguments' => array('access content'), 
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Settings form for YouTube defaults.
+ */
+function youtube_settings_form($form) {
+  $form = array();
+  $form['text'] = array(
+    '#type' => 'markup',
+    '#markup' => '<p>' . t('The following settings will be used as default values 
+      on all YouTube video fields.  Many of these settings can be overridden
+      on a per-field basis.') . '</p>',
+  );
+  $form['youtube_suggest'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show suggested videos when the video finishes'),
+    '#default_value' => variable_get('youtube_suggest', TRUE),
+  );
+  $form['youtube_https'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use HTTPS'),
+    '#default_value' => variable_get('youtube_https', FALSE),
+  );
+  $form['youtube_privacy'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable privacy-enhanced mode'),
+    '#default_value' => variable_get('youtube_privacy', FALSE),
+  );
+  $form['youtube_old'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use old embed code'),
+    '#default_value' => variable_get('youtube_old', FALSE),
+  );
+  $form['youtube_size'] = array(
+    '#type' => 'select',
+    '#title' => t('Default video size'),
+    '#options' => array(
+      '420x315' => '450px by 315px',
+      '480x360' => '480px by 360px',
+      '640x480' => '640px by 480px',
+      '960x720' => '960px by 720px',
+    ),
+    '#default_value' => variable_get('youtube_size', '420x315'),
+  );
+
+  return system_settings_form($form);
+}
 
 /**
  * Implements hook_field_info().
@@ -129,7 +190,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
       foreach ($items as $delta => $item) {
         $element[$delta] = array(
           '#theme' => 'youtube_video',
-          '#video_id' => $item,
+          '#video_id' => $item['video_id'],
         );
       }
       break;
@@ -252,8 +313,16 @@ function youtube_theme($existing, $type, $theme, $path) {
  */
 function theme_youtube_video($variables) {
   $id = $variables['video_id'];
+  $youtube_https = variable_get('youtube_https', FALSE);
+  $protocol = ($youtube_https) ? 'https' : 'http';
 
-  $output = 'video';
+  $src = url($protocol . '://www.youtube.com/embed/' . $id);
+  $size = variable_get('youtube_size', '420x315');
+  $dimensions = youtube_get_dimensions($size);
+
+  $output = '<iframe width="' . $dimensions['width'] . '" 
+    height="' . $dimensions['height'] . '" src="' . $src . '" 
+    frameborder="0" allowfullscreen></iframe>';
 
   return $output;
 }
@@ -269,4 +338,20 @@ function theme_youtube_thumbnail($variables) {
   $output = 'thumbnail';
 
   return $output;
+}
+
+/**
+ * Helper function to split height and width.
+ */
+function youtube_get_dimensions($size = NULL) {
+  $dimensions = array();
+  if (strlen($size) != 7) {
+    return $dimensions;
+  }
+  // Width is the first dimension
+  $dimensions['width'] = substr($size, 0, 3);
+  // Height is the second dimension.
+  $dimensions['height'] = substr($size, 4, 3);
+
+  return $dimensions;
 }

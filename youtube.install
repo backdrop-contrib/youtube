@@ -28,3 +28,10 @@ function youtube_field_schema($field) {
     'indexes' => $indexes,
   );
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function youtube_uninstall() {
+  // TODO delete youtube variables.
+}
