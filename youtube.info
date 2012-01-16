@@ -1,5 +1,6 @@
 name = YouTube Field
 description = Provides an YouTube widget for fields.
 dependencies[] = field 
-dependencies[] = image 
+dependencies[] = image
+dependencies[] = file 
 core = 7.x

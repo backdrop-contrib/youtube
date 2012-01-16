@@ -13,11 +13,23 @@ function youtube_menu() {
     'title' => 'YouTube settings', 
     'page callback' => 'drupal_get_form', 
     'page arguments' => array('youtube_settings_form'),
-    'access arguments' => array('access content'), 
+    'access arguments' => array('administer youtube'), 
     'type' => MENU_NORMAL_ITEM,
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function youtube_permission() {
+  return array(
+    'administer youtube' => array(
+      'title' => t('Administer YouTube field'), 
+      'description' => t('Set default configurations for YouTube field settings.'),
+    ),
+  );
 }
 
 /**
@@ -51,6 +63,14 @@ function youtube_settings_form($form) {
     '#title' => t('Use old embed code (Flash)'),
     '#default_value' => variable_get('youtube_old', FALSE),
     '#description' => t('Checking this box will load your video in flash, which will not work on many mobile devices. Leaving this box unchecked loads the video in an iFrame (recommended).'),
+  );
+  $form['youtube_thumb_dir'] = array(
+    '#type' => 'textfield',
+    '#title' => t('YouTube thumbnail directory'),
+    '#field_prefix' => variable_get('file_public_path', conf_path() . '/files') . '/',
+    '#field_suffix' => '/thumbnail.png',
+    '#description' => t('Location, within the files directory, where you would like the YouTube thumbnails stored.'),
+    '#default_value' => variable_get('youtube_thumb_dir', 'youtube'),
   );
   $form['youtube_size'] = array(
     '#type' => 'select',
@@ -125,6 +145,7 @@ function youtube_field_formatter_info() {
     'youtube_video' => array(
       'label' => t('YouTube video'),
       'field types' => array('youtube'),
+      'settings' => array('video_size' => '420x315'), // TODO
     ),
     // This formatter just displays a thumbnail for your video.
     'youtube_thumbnail' => array(
@@ -303,7 +324,7 @@ function youtube_theme($existing, $type, $theme, $path) {
       //'file' => 'youtube.theme.inc',
     ),
     'youtube_video' => array(
-      'variables' => array('video_id' => NULL), 
+      'variables' => array('video_id' => NULL),
       //'file' => 'youtube.theme.inc',
     ),
   );
@@ -375,45 +396,35 @@ function theme_youtube_thumbnail($variables) {
   $id = $variables['video_id'];
   $style = $variables['image_style'];
 
-  // Get YouTube settings.
+  // Get YouTube settings - TODO is this needed?
   $size = variable_get('youtube_size', '420x315');
   $dimensions = youtube_get_dimensions($size);
 
-  /* Get images by building correctly formed URL - kinda hackey.
+  $files = variable_get('file_public_path', conf_path() . '/files');
+  $youtube = variable_get('youtube_thumb_dir', 'youtube');
+  $dest = $files . '/' . $youtube . '/' . $id . '.png';
 
-  // Full size image.
-  $path = 'http://img.youtube.com/vi/' . $id . '/0.jpg';
-  // Default image thumbnail.
-  $path = 'http://img.youtube.com/vi/' . $id . '/default.jpg';
-  // High Quality version of the default thumbnail.
-  $path = 'http://img.youtube.com/vi/' . $id . '/hqdefault.jpg';
-  // High Resolution version of the default thumbnail.
-  //$path = 'http://img.youtube.com/vi/' . $id . '/maxresdefault.jpg'; // May not work.
-  // First thumbnail.
-  $path = 'http://img.youtube.com/vi/' . $id . '/1.jpg';
-  // Second thumbnail.
-  $path = 'http://img.youtube.com/vi/' . $id . '/2.jpg';
-  // Third thumbnail.
-  $path = 'http://img.youtube.com/vi/' . $id . '/3.jpg';
+  // Check to see if a thumbnail exists locally.
+  if (!file_exists($dest)) {
+    // Retrive the image from YouTube.
+    if (!youtube_pull_remote_image($id)) {
+      // Use the remote source if local copy fails
+      module_load_include('inc', 'youtube', 'youtube');
+      $src = youtube_build_remote_image_path($id);
+      return theme('image', array('path' => $src));
+    }
+  }
 
-  $src = url($path);
-  */
-  
-  // Get the image via JSON API:
-  $path = 'http://gdata.youtube.com/feeds/api/videos/' . $id;
-  $query = array('v' => '2', 'alt' => 'jsonc');
-  $url = url($path, array('query' => $query));
-  $result = drupal_http_request($url);
-  $data = json_decode($result->data);
-  // Get the high quality default thumbnail.
-  $src = $data->data->thumbnail->hqDefault;
-  
-  // TODO copy filefield_sources ability to save a remote file lcoally.
-  // TODO use the UI setting for which preset to render the correct image style.
+  if ($style) {
+    $uri = 'public://' . $youtube . '/' . $id . '.png';
+    $image = theme('image_style', array('style_name' => $style, 'path' => $uri));
+  }
+  else {
+    $path = $files . '/' . $youtube . '/' . $id . '.png';
+    $image = theme('image', array('path' => $path));
+  }
 
-  $img = '<img src="' . $src . '" alt="" />';
-
-  return $img;
+  return $image;
 }
 
 /**
@@ -430,4 +441,39 @@ function youtube_get_dimensions($size = NULL) {
   $dimensions['height'] = substr($size, 4, 3);
 
   return $dimensions;
+}
+
+/**
+ * Retreve youtube thumbnail image via YouTube API.
+ * TODO add error messaging if something goes wrong.
+ */
+function youtube_pull_remote_image($id = NULL) {
+  // Get the image via YouTube JSON API:
+  $path = 'http://gdata.youtube.com/feeds/api/videos/' . $id;
+  $query = array(
+    'v' => '2', 
+    'alt' => 'jsonc'
+  );
+  $url = url($path, array('query' => $query));
+  $result = drupal_http_request($url);
+  $data = json_decode($result->data);
+  // Get the high quality default thumbnail.
+  $src = $data->data->thumbnail->hqDefault;
+
+  // Make the actual request to download the file.
+  $image_result = drupal_http_request($src);
+
+  // Assure the youtube thumbnail directory exists. 
+  $files = variable_get('file_public_path', conf_path() . '/files');
+  $youtube_dir = variable_get('youtube_thumb_dir', 'youtube');
+  $youtube_path = $files . '/' . $youtube_dir;
+  if (!file_prepare_directory($youtube_path, FILE_CREATE_DIRECTORY) && !mkdir($youtube_path, 0775, TRUE)) {
+    watchdog('youtube', 'Failed to create YouTube thumbnail directory: %dir', array('%dir' => $youtube_path), WATCHDOG_ERROR);
+  }
+
+  // Save the file.
+  $dest = $files . '/' . $youtube_dir . '/' . $id . '.png';
+  file_put_contents($dest, $image_result->data);
+  
+  return TRUE;
 }
