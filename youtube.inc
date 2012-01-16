@@ -2,12 +2,74 @@
 
 /**
  * @ file
- * YouTube Field helper functions.
+ * YouTube field helper functions.
  */
 
 /**
+ * Returns a list of standard YouTube video sizes.
+ */
+function youtube_size_options() {
+  return array(
+    '420x315' => '450px by 315px',
+    '480x360' => '480px by 360px',
+    '640x480' => '640px by 480px',
+    '960x720' => '960px by 720px',
+  );
+}
+
+/**
+ * Splits height and width when given size, as from youtube_size_options.
+ */
+function youtube_get_dimensions($size = NULL) {
+  $dimensions = array();
+  if (strlen($size) != 7) {
+    return $dimensions;
+  }
+  // Width is the first dimension.
+  $dimensions['width'] = substr($size, 0, 3);
+  // Height is the second dimension.
+  $dimensions['height'] = substr($size, 4, 3);
+
+  return $dimensions;
+}
+
+/**
+ * Retreve youtube thumbnail image via YouTube API.
+ *
+ * TODO add error messaging if something goes wrong, and return FALSE.
+ */
+function youtube_get_remote_image($id = NULL) {
+  $path = 'http://gdata.youtube.com/feeds/api/videos/' . $id;
+  $query = array(
+    'v' => '2', 
+    'alt' => 'jsonc'
+  );
+  $url = url($path, array('query' => $query));
+  $result = drupal_http_request($url);
+  $data = json_decode($result->data);
+  // Get the high quality default thumbnail.
+  $src = $data->data->thumbnail->hqDefault;
+
+  // Make the actual request to download the file.
+  $image_result = drupal_http_request($src);
+
+  // Assure the youtube thumbnail directory exists. 
+  $files = variable_get('file_public_path', conf_path() . '/files');
+  $youtube_dir = variable_get('youtube_thumb_dir', 'youtube');
+  $youtube_path = $files . '/' . $youtube_dir;
+  if (!file_prepare_directory($youtube_path, FILE_CREATE_DIRECTORY) && !mkdir($youtube_path, 0775, TRUE)) {
+    watchdog('youtube', 'Failed to create YouTube thumbnail directory: %dir', array('%dir' => $youtube_path), WATCHDOG_ERROR);
+  }
+
+  // Save the file.
+  $dest = $files . '/' . $youtube_dir . '/' . $id . '.png';
+  file_put_contents($dest, $image_result->data);
+
+  return TRUE;
+}
+
+/**
  * Get images by building correctly formed URL - kinda hackey.
- * NOT USED in youtube field module.
  */
 function youtube_build_remote_image_path($id = NULL) {
   if (!$id) {
