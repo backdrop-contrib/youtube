@@ -345,15 +345,3 @@ function youtube_theme($existing, $type, $theme, $path) {
     ),
   );
 }
-
-/**
- * Implements hook_views_api().
- *
- * This tells drupal that there is Views integration file named
- * module-name.views.inc
- */
-function youtube_views_api() {
-  return array(
-    'api' => 2.0
-  );
-}
