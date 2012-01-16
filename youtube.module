@@ -94,11 +94,11 @@ function youtube_field_validate($entity_type, $entity, $field, $instance, $langc
     if (!empty($item['input'])) {
 
       $valid = FALSE;
-      // The video URL can be in the format http://www.youtube.com/watch?v=1SqBdS0XkV4
+      // Video URL in the format http://www.youtube.com/watch?v=1SqBdS0XkV4.
       if (strstr($item['input'], 'youtube.com/watch?v=')) {
         $valid = TRUE;
       }
-      // The video URL can be in the format http://youtu.be/1SqBdS0XkV4
+      // Video URL in the format http://youtu.be/1SqBdS0XkV4.
       elseif (strstr($item['input'], 'youtu.be/')) {
         $valid = TRUE;
       }
@@ -135,7 +135,7 @@ function youtube_field_formatter_info() {
     'youtube_thumbnail' => array(
       'label' => t('YouTube thumbnail'),
       'field types' => array('youtube'),
-      'settings' => array('image_style' => ''),
+      'settings' => array('image_style' => 'thumbnail'),
     ),
   );
 
@@ -277,7 +277,7 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 }
 
 /**
- * 
+ * Validation for the youtube field itself.
  */
 function youtube_input_validate($element, &$form_state, $form) {
   $input = $element['#value'];
