@@ -262,7 +262,7 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
   $video_id = isset($items[$delta]['video_id']) ? $items[$delta]['video_id'] : '';
   $video_id_element = array(
-    '#markup' => t('this is your YouTube ID: ') . $video_id,
+    '#markup' => '<div class="youtube-video-id">' . t('This is your YouTube ID: ') . $video_id . '<div>',
   );
   return array(
     'input' => $element,
@@ -274,23 +274,31 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
  * 
  */
 function youtube_input_validate($element, &$form_state, $form) {
-  
   $input = $element['#value'];
   $valid = FALSE;
-  
+
+  // The video URL in the format http://youtube.com/watch?v=1SqBdS0XkV4.
   if (strstr($input, 'youtube.com/watch?v=')) {
     $valid = TRUE;
     $anchor = '?v=';
     $position = strpos($input, $anchor);
     $video_id = trim(substr($input, $position + strlen($anchor)));
+    // Remove additional query parameters.
+    if ($amp = strpos($video_id, '&')) {
+      $video_id = substr($video_id, 0, $amp);
+    }
   }
   
-  // The video URL can be in the format http://youtu.be/1SqBdS0XkV4
+  // The video URL in the format http://youtu.be/1SqBdS0XkV4.
   elseif (strstr($input, 'youtu.be/')) {
     $valid = TRUE;
     $anchor = 'be/';
     $position = strpos($input, $anchor);
     $video_id = trim(substr($input, $position + strlen($anchor)));
+    // Remove additional query parameters.
+    if ($amp = strpos($video_id, '&')) {
+      $video_id = substr($video_id, 0, $amp);
+    }
   }
   
   if ($valid) {
@@ -406,9 +414,9 @@ function theme_youtube_thumbnail($variables) {
 
   // Check to see if a thumbnail exists locally.
   if (!file_exists($dest)) {
-    // Retrive the image from YouTube.
-    if (!youtube_pull_remote_image($id)) {
-      // Use the remote source if local copy fails
+    // Retrieve the image from YouTube.
+    if (!youtube_get_remote_image($id)) {
+      // Use the remote source if local copy fails.
       module_load_include('inc', 'youtube', 'youtube');
       $src = youtube_build_remote_image_path($id);
       return theme('image', array('path' => $src));
@@ -445,10 +453,10 @@ function youtube_get_dimensions($size = NULL) {
 
 /**
  * Retreve youtube thumbnail image via YouTube API.
- * TODO add error messaging if something goes wrong.
+ *
+ * TODO add error messaging if something goes wrong, and return FALSE.
  */
-function youtube_pull_remote_image($id = NULL) {
-  // Get the image via YouTube JSON API:
+function youtube_get_remote_image($id = NULL) {
   $path = 'http://gdata.youtube.com/feeds/api/videos/' . $id;
   $query = array(
     'v' => '2', 
@@ -474,6 +482,6 @@ function youtube_pull_remote_image($id = NULL) {
   // Save the file.
   $dest = $files . '/' . $youtube_dir . '/' . $id . '.png';
   file_put_contents($dest, $image_result->data);
-  
+
   return TRUE;
 }
