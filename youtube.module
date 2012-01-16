@@ -48,11 +48,6 @@ function youtube_settings_form($form) {
     '#title' => t('Show suggested videos when the video finishes'),
     '#default_value' => variable_get('youtube_suggest', TRUE),
   );
-  $form['youtube_https'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use HTTPS'),
-    '#default_value' => variable_get('youtube_https', FALSE),
-  );
   $form['youtube_privacy'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable privacy-enhanced mode'),
@@ -71,17 +66,6 @@ function youtube_settings_form($form) {
     '#field_suffix' => '/thumbnail.png',
     '#description' => t('Location, within the files directory, where you would like the YouTube thumbnails stored.'),
     '#default_value' => variable_get('youtube_thumb_dir', 'youtube'),
-  );
-  $form['youtube_size'] = array(
-    '#type' => 'select',
-    '#title' => t('Default video size'),
-    '#options' => array(
-      '420x315' => '450px by 315px',
-      '480x360' => '480px by 360px',
-      '640x480' => '640px by 480px',
-      '960x720' => '960px by 720px',
-    ),
-    '#default_value' => variable_get('youtube_size', '420x315'),
   );
 
   return system_settings_form($form);
@@ -145,7 +129,7 @@ function youtube_field_formatter_info() {
     'youtube_video' => array(
       'label' => t('YouTube video'),
       'field types' => array('youtube'),
-      'settings' => array('video_size' => '420x315'), // TODO
+      'settings' => array('youtube_size' => '420x315'), // TODO
     ),
     // This formatter just displays a thumbnail for your video.
     'youtube_thumbnail' => array(
@@ -164,15 +148,25 @@ function youtube_field_formatter_info() {
 function youtube_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
+  
+  if ($display['type'] == 'youtube_video') {
+    $element['youtube_size'] = array(
+      '#type' => 'select',
+      '#title' => t('YouTube video size'),
+      '#options' => youtube_size_options(),
+      '#default_value' => $settings['youtube_size'],
+    );
+  }
 
-  $image_styles = image_style_options(FALSE);
-  $element['image_style'] = array(
-    '#title' => t('Image style'),
-    '#type' => 'select',
-    '#default_value' => $settings['image_style'],
-    '#empty_option' => t('None (original image)'),
-    '#options' => $image_styles,
-  );
+  if ($display['type'] == 'youtube_thumbnail') {
+    $element['image_style'] = array(
+      '#type' => 'select',
+      '#title' => t('Image style'),
+      '#options' => image_style_options(FALSE),
+      '#default_value' => $settings['image_style'],
+      '#empty_option' => t('None (original image)'),
+    );
+  }
 
   return $element;
 }
@@ -184,7 +178,19 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  // We only need a summary for the thumbnail style.
+  // Summary for the video style.
+  if ($display['type'] == 'youtube_video') {
+    $video_sizes = youtube_size_options();
+    if (isset($video_sizes[$settings['youtube_size']])) {
+      $summary = t('YouTube video: @size', array('@size' => $video_sizes[$settings['youtube_size']]));
+    }
+    else {
+      $summary = t('YouTube video: 450px by 315px');
+    }
+    return $summary;
+  }
+
+  // Summary for the thumbnail style.
   if ($display['type'] == 'youtube_thumbnail') {
     $image_styles = image_style_options(FALSE);
     // Unset possible 'No defined styles' option.
@@ -195,7 +201,6 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
     else {
       $summary = t('Original image');
     }
-
     return $summary;
   }
 }
@@ -207,12 +212,13 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
   $element = array();
 
   switch ($display['type']) {
-    // This formatter simply outputs the youtube embed code.
+    // This formatter outputs the youtube embed code.
     case 'youtube_video':
       foreach ($items as $delta => $item) {
         $element[$delta] = array(
           '#theme' => 'youtube_video',
           '#video_id' => $item['video_id'],
+          '#youtube_size' => $display['settings']['youtube_size'],
         );
       }
       break;
@@ -332,7 +338,7 @@ function youtube_theme($existing, $type, $theme, $path) {
       //'file' => 'youtube.theme.inc',
     ),
     'youtube_video' => array(
-      'variables' => array('video_id' => NULL),
+      'variables' => array('video_id' => NULL, 'youtube_size' => NULL),
       //'file' => 'youtube.theme.inc',
     ),
   );
@@ -343,18 +349,18 @@ function youtube_theme($existing, $type, $theme, $path) {
  */
 function theme_youtube_video($variables) {
   $id = $variables['video_id'];
-  
-  // Get YouTybe settings.
+  $size = $variables['youtube_size'];
+  dpm($size);
+
+  // Get YouTube settings.
   $old = variable_get('youtube_old', FALSE);
-  $https = variable_get('youtube_https', FALSE);
   $suggest = variable_get('youtube_suggest', TRUE);
   $privacy = variable_get('youtube_privacy', FALSE);
-  $size = variable_get('youtube_size', '420x315');
   $dimensions = youtube_get_dimensions($size);
 
-  // Protocol changes based on settings.
-  $protocol = ($https) ? 'https' : 'http';
-  
+  // Protocol changes based on current page TODO.
+  $protocol = (isset($_SERVER['HTTPS'])) ? 'https' : 'http';
+
   // Query string changes based on setings.
   $query = array();
   if ($old){
@@ -364,13 +370,13 @@ function theme_youtube_video($variables) {
   if (!$suggest) {
     $query['rel'] = '0';
   }
-  
+
   // Domain changes based on settings.
   $domain = ($privacy) ? 'youtube-nocookie.com' : 'youtube.com';
 
   $path = $protocol . '://www.' . $domain . '/embed/' . $id;
   $src = url($path, array('query' => $query));
-  
+
   if ($old) {
     $path = $protocol . '://www.' . $domain . '/v/' . $id;
     $embed_src = url($embed_path, array('query' => $query));
@@ -484,4 +490,16 @@ function youtube_get_remote_image($id = NULL) {
   file_put_contents($dest, $image_result->data);
 
   return TRUE;
+}
+
+/**
+ * Returns a list of standard YouTube video sizes.
+ */
+function youtube_size_options() {
+  return array(
+    '420x315' => '450px by 315px',
+    '480x360' => '480px by 360px',
+    '640x480' => '640px by 480px',
+    '960x720' => '960px by 720px',
+  );
 }
