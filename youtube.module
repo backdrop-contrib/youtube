@@ -315,7 +315,7 @@ function youtube_input_validate($element, &$form_state, $form) {
     );
     array_pop($video_id_element['#parents']);
     $video_id_element['#parents'][] = 'video_id';
-    form_set_value($video_id_element, $video_id, &$form_state);
+    form_set_value($video_id_element, $video_id, $form_state);
   }
 }
 
