@@ -310,8 +310,8 @@ function youtube_input_validate($element, &$form_state, $form) {
     $position = strpos($input, $anchor);
     $video_id = trim(substr($input, $position + strlen($anchor)));
     // Remove additional query parameters.
-    if ($amp = strpos($video_id, '&')) {
-      $video_id = substr($video_id, 0, $amp);
+    if ($param = strpos($video_id, '?')) {
+      $video_id = substr($video_id, 0, $param);
     }
   }
   
