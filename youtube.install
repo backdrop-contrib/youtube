@@ -38,4 +38,5 @@ function youtube_uninstall() {
   variable_del('youtube_privacy');
   variable_del('youtube_old');
   variable_del('youtube_thumb_dir');
+  variable_del('youtube_wmode');
 }

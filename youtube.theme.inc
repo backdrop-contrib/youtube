@@ -15,6 +15,7 @@ function theme_youtube_video($variables) {
   $old = variable_get('youtube_old', FALSE);
   $suggest = variable_get('youtube_suggest', TRUE);
   $privacy = variable_get('youtube_privacy', FALSE);
+  $wmode = variable_get('youtube_wmode', TRUE);
   $dimensions = youtube_get_dimensions($size);
 
   // Protocol changes based on current page TODO.
@@ -28,6 +29,9 @@ function theme_youtube_video($variables) {
   }
   if (!$suggest) {
     $query['rel'] = '0';
+  }
+  if ($wmode) {
+    $query['wmode'] = 'opaque';
   }
 
   // Domain changes based on settings.
