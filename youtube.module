@@ -276,7 +276,7 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
   $video_id = isset($items[$delta]['video_id']) ? $items[$delta]['video_id'] : '';
   $video_id_element = array(
-    '#markup' => '<div class="youtube-video-id">' . t('This is your YouTube video ID: ') . $video_id . '<div>',
+    '#markup' => '<div class="youtube-video-id">' . t('This is your YouTube video ID: ') . $video_id . '</div>',
   );
   return array(
     'input' => $element,
