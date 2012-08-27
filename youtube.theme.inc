@@ -9,14 +9,16 @@
  */
 function theme_youtube_video($variables) {
   $id = $variables['video_id'];
-  $size = $variables['youtube_size'];
+  $size = $variables['size'];
+  $width = array_key_exists('width', $variables)? $variables['width'] : NULL;
+  $height = array_key_exists('height', $variables)? $variables['height'] : NULL;
 
   // Get YouTube settings.
   $old = variable_get('youtube_old', FALSE);
   $suggest = variable_get('youtube_suggest', TRUE);
   $privacy = variable_get('youtube_privacy', FALSE);
   $wmode = variable_get('youtube_wmode', TRUE);
-  $dimensions = youtube_get_dimensions($size);
+  $dimensions = youtube_get_dimensions($size, $width, $height);
 
   // Protocol changes based on current page TODO.
   $protocol = (isset($_SERVER['HTTPS'])) ? 'https' : 'http';

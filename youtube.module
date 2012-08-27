@@ -137,7 +137,11 @@ function youtube_field_formatter_info() {
     'youtube_video' => array(
       'label' => t('YouTube video'),
       'field types' => array('youtube'),
-      'settings' => array('youtube_size' => '420x315'), // TODO
+      'settings' => array(
+        'youtube_size' => '420x315',
+        'youtube_width' => NULL,
+        'youtube_height' => NULL,
+      ),
     ),
     // This formatter just displays a thumbnail for your video.
     'youtube_thumbnail' => array(
@@ -163,6 +167,28 @@ function youtube_field_formatter_settings_form($field, $instance, $view_mode, $f
       '#title' => t('YouTube video size'),
       '#options' => youtube_size_options(),
       '#default_value' => $settings['youtube_size'],
+    );
+    $element['youtube_width'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Width'),
+      '#size' => 10,
+      '#default_value' => $settings['youtube_width'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[field_youtube][settings_edit_form][settings][youtube_size]"]' => array('value' => 'custom'),
+        ),
+      ),
+    );
+    $element['youtube_height'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Height'),
+      '#size' => 10,
+      '#default_value' => $settings['youtube_height'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[field_youtube][settings_edit_form][settings][youtube_size]"]' => array('value' => 'custom'),
+        ),
+      ),
     );
   }
 
@@ -226,7 +252,9 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
         $element[$delta] = array(
           '#theme' => 'youtube_video',
           '#video_id' => $item['video_id'],
-          '#youtube_size' => $display['settings']['youtube_size'],
+          '#size' => array_key_exists('youtube_size', $display['settings']) ? $display['settings']['youtube_size']: NULL,
+          '#width' => array_key_exists('youtube_width', $display['settings']) ? $display['settings']['youtube_width'] : NULL,
+          '#height' => array_key_exists('youtube_height', $display['settings']) ? $display['settings']['youtube_height'] : NULL,
         );
       }
       break;
@@ -346,7 +374,7 @@ function youtube_theme($existing, $type, $theme, $path) {
       'file' => 'youtube.theme.inc',
     ),
     'youtube_video' => array(
-      'variables' => array('video_id' => NULL, 'youtube_size' => NULL),
+      'variables' => array('video_id' => NULL, 'size' => NULL, 'width' => NULL, 'height' => NULL),
       'file' => 'youtube.theme.inc',
     ),
   );

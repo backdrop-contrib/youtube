@@ -14,21 +14,27 @@ function youtube_size_options() {
     '480x360' => '480px by 360px',
     '640x480' => '640px by 480px',
     '960x720' => '960px by 720px',
+    'custom' => 'custom',
   );
 }
 
 /**
  * Splits height and width when given size, as from youtube_size_options.
  */
-function youtube_get_dimensions($size = NULL) {
+function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
   $dimensions = array();
-  if (strlen($size) != 7) {
-    return $dimensions;
+  if ($size == 'custom') {
+    $dimensions['width'] = (int) $width;
+    $dimensions['height'] = (int) $height;
   }
-  // Width is the first dimension.
-  $dimensions['width'] = substr($size, 0, 3);
-  // Height is the second dimension.
-  $dimensions['height'] = substr($size, 4, 3);
+  else {
+    // Locate the 'x'.
+    $strpos = strpos($size, 'x');
+    // Width is the first dimension.
+    $dimensions['width'] = substr($size, 0, $strpos);
+    // Height is the second dimension.
+    $dimensions['height'] = substr($size, $strpos + 1, strlen($size));
+  }
 
   return $dimensions;
 }
