@@ -135,6 +135,7 @@ function youtube_field_formatter_info() {
         'youtube_size' => '420x315',
         'youtube_width' => NULL,
         'youtube_height' => NULL,
+        'youtube_autoplay' => FALSE,
       ),
     ),
     // This formatter just displays a thumbnail for your video.
@@ -187,6 +188,11 @@ function youtube_field_formatter_settings_form($field, $instance, $view_mode, $f
         ),
       ),
     );
+    $element['youtube_autoplay'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Play video automatically when loaded (Autoplay).'),
+      '#default_value' => $settings['youtube_autoplay'],
+    );
   }
 
   if ($display['type'] == 'youtube_thumbnail') {
@@ -231,6 +237,9 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
     else {
       $summary = t('YouTube video: 450px by 315px');
     }
+    if ($settings['youtube_autoplay']) {
+      $summary .= t(', Autoplay');
+    }
     return $summary;
   }
 
@@ -273,6 +282,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
           '#size' => array_key_exists('youtube_size', $display['settings']) ? $display['settings']['youtube_size']: NULL,
           '#width' => array_key_exists('youtube_width', $display['settings']) ? $display['settings']['youtube_width'] : NULL,
           '#height' => array_key_exists('youtube_height', $display['settings']) ? $display['settings']['youtube_height'] : NULL,
+          '#autoplay' => array_key_exists('youtube_autoplay', $display['settings']) ? $display['settings']['youtube_autoplay'] : FALSE,
         );
       }
       break;
@@ -419,7 +429,7 @@ function youtube_theme($existing, $type, $theme, $path) {
       'file' => 'youtube.theme.inc',
     ),
     'youtube_video' => array(
-      'variables' => array('video_id' => NULL, 'size' => NULL, 'width' => NULL, 'height' => NULL),
+      'variables' => array('video_id' => NULL, 'size' => NULL, 'width' => NULL, 'height' => NULL, 'autoplay' => FALSE),
       'file' => 'youtube.theme.inc',
     ),
   );

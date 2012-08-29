@@ -12,6 +12,7 @@ function theme_youtube_video($variables) {
   $size = $variables['size'];
   $width = array_key_exists('width', $variables)? $variables['width'] : NULL;
   $height = array_key_exists('height', $variables)? $variables['height'] : NULL;
+  $autoplay = array_key_exists('autoplay', $variables)? $variables['autoplay'] : FALSE;
 
   // Get YouTube settings.
   $suggest = variable_get('youtube_suggest', TRUE);
@@ -29,6 +30,9 @@ function theme_youtube_video($variables) {
   }
   if ($wmode) {
     $query['wmode'] = 'opaque';
+  }
+  if ($autoplay) {
+    $query['autoplay'] = '1';
   }
 
   // Domain changes based on settings.
