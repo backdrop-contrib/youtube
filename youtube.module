@@ -50,17 +50,11 @@ function youtube_settings_form($form) {
     '#default_value' => variable_get('youtube_privacy', FALSE),
     '#description' => t('Checking this box will prevent YouTube from setting cookies in your site visitors browser.'),
   );
-  $form['youtube_old'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use old embed code (Flash)'),
-    '#default_value' => variable_get('youtube_old', FALSE),
-    '#description' => t('Checking this box will load your video using Flash object embed code, potentially slowing down page load speed. Leaving this box unchecked loads the video in an iFrame instead (recommended).'),
-  );
   $form['youtube_wmode'] = array(
     '#type' => 'checkbox',
     '#title' => t('Fix overlay problem on IE8 and lower'),
     '#default_value' => variable_get('youtube_wmode', TRUE),
-    '#description' => t('Checking this will fix the issue of a YouTube video showing above a modal window (including Drupal\'s Overlay). This is needed if you have Overlay users in IE or have modal windows throughout your site. This currently does not work when using the old embed code option (see above).'),
+    '#description' => t('Checking this will fix the issue of a YouTube video showing above a modal window (including Drupal\'s Overlay). This is needed if you have Overlay users in IE or have modal windows throughout your site.'),
   );
   $form['youtube_suggest'] = array(
     '#type' => 'checkbox',

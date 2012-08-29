@@ -14,7 +14,6 @@ function theme_youtube_video($variables) {
   $height = array_key_exists('height', $variables)? $variables['height'] : NULL;
 
   // Get YouTube settings.
-  $old = variable_get('youtube_old', FALSE);
   $suggest = variable_get('youtube_suggest', TRUE);
   $privacy = variable_get('youtube_privacy', FALSE);
   $wmode = variable_get('youtube_wmode', TRUE);
@@ -25,10 +24,6 @@ function theme_youtube_video($variables) {
 
   // Query string changes based on setings.
   $query = array();
-  if ($old){
-    $query['version'] = '3';
-    $query['hl'] = 'en_US';
-  }
   if (!$suggest) {
     $query['rel'] = '0';
   }
@@ -42,27 +37,9 @@ function theme_youtube_video($variables) {
   $path = $protocol . '://www.' . $domain . '/embed/' . $id;
   $src = url($path, array('query' => $query));
 
-  if ($old) {
-    $path = $protocol . '://www.' . $domain . '/v/' . $id;
-    $embed_src = url($embed_path, array('query' => $query));
-  }
-
-  if ($old) {
-    $output = '<object width="' . $dimensions['width'] . '" 
-      height="' . $dimensions['height'] . '">
-      <param name="movie" value="' . $src . '"></param>
-      <param name="allowFullScreen" value="true"></param>
-      <param name="allowscriptaccess" value="always"></param>
-      <embed src="http://www.youtube.com/v/1SqBdS0XkV4?version=3&amp;hl=en_US&amp;rel=0" 
-        type="application/x-shockwave-flash" width="' . $dimensions['width'] . '" 
-        height="' . $dimensions['height'] . '" allowscriptaccess="always" allowfullscreen="true">
-      </embed></object>';
-  }
-  else {
-    $output = '<iframe width="' . $dimensions['width'] . '" 
-      height="' . $dimensions['height'] . '" src="' . $src . '" 
-      frameborder="0" allowfullscreen></iframe>';
-  }
+  $output = '<iframe width="' . $dimensions['width'] . '" 
+    height="' . $dimensions['height'] . '" src="' . $src . '" 
+    frameborder="0" allowfullscreen></iframe>';
 
   return $output;
 }
