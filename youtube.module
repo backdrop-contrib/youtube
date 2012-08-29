@@ -147,7 +147,10 @@ function youtube_field_formatter_info() {
     'youtube_thumbnail' => array(
       'label' => t('YouTube thumbnail'),
       'field types' => array('youtube'),
-      'settings' => array('image_style' => 'thumbnail'),
+      'settings' => array(
+        'image_style' => 'thumbnail',
+        'image_link' => '',
+      ),
     ),
   );
 
@@ -200,6 +203,19 @@ function youtube_field_formatter_settings_form($field, $instance, $view_mode, $f
       '#default_value' => $settings['image_style'],
       '#empty_option' => t('None (original image)'),
     );
+
+    // Option to link the thumbnail to either it's original node or original youtube video.
+    $link_types = array(
+      'content' => t('Content'),
+      'youtube' => t('YouTube'),
+    );
+    $element['image_link'] = array(
+      '#title' => t('Link image to'),
+      '#type' => 'select',
+      '#default_value' => $settings['image_link'],
+      '#empty_option' => t('Nothing'),
+      '#options' => $link_types,
+    );
   }
 
   return $element;
@@ -235,6 +251,14 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
     else {
       $summary = t('Original image');
     }
+    $link_types = array(
+      'content' => ' ' . t('linked to content'),
+      'youtube' => ' ' . t('linked to YouTube'),
+    );
+    // Display this setting only if image is linked.
+    if (isset($settings['image_link']) && isset($link_types[$settings['image_link']])) {
+      $summary .= $link_types[$settings['image_link']];
+    }
     return $summary;
   }
 }
@@ -258,14 +282,35 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
         );
       }
       break;
-    
+
     // This formatter uses an imagecache preset to generate a thumbnail.
     case 'youtube_thumbnail':
+
+      // Check if the formatter involves a link.
+      if (isset($display['settings']['image_link'])) {
+        if ($display['settings']['image_link'] == 'content') {
+          $uri = entity_uri($entity_type, $entity);
+          $uri['options']['html'] = TRUE;
+        }
+        elseif ($display['settings']['image_link'] == 'youtube') {
+          $link_youtube = TRUE;
+        }
+      }
+
       foreach ($items as $delta => $item) {
+        // If the thumbnail is linked to it's youtube page, take the original url.
+        if (isset($link_youtube) && $link_youtube) {
+          $uri = array(
+            'path' => $item['input'],
+            'options' => array('html' => TRUE),
+          );
+        }
+
         $element[$delta] = array(
           '#theme' => 'youtube_thumbnail',
           '#video_id' => $item['video_id'],
           '#image_style' => $display['settings']['image_style'],
+          '#image_link' => isset($uri) ? $uri : '',
         );
       }
       break;
@@ -370,7 +415,7 @@ function youtube_field_widget_error($element, $error, $form, &$form_state) {
 function youtube_theme($existing, $type, $theme, $path) {
   return array(
     'youtube_thumbnail' => array(
-      'variables' => array('video_id' => NULL, 'image_style' => NULL),
+      'variables' => array('video_id' => NULL, 'image_style' => NULL, 'image_link' => NULL),
       'file' => 'youtube.theme.inc',
     ),
     'youtube_video' => array(

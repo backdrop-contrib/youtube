@@ -102,5 +102,12 @@ function theme_youtube_thumbnail($variables) {
     $image = theme('image', array('path' => $path));
   }
 
+  // Check if an url path is provided
+  if ($variables['image_link'] != NULL) {
+    $url_path = $variables['image_link']['path'];
+    $options = $variables['image_link']['options'];
+    $image = l($image, $url_path, $options);
+  }
+
   return $image;
 }
