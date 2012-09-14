@@ -356,15 +356,16 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
       include: http://www.youtube.com/watch?v=1SqBdS0XkV4 and 
       http://youtu.be/1SqBdS0XkV4');
   }
+  $return = array('input' => $element);
 
-  $video_id = isset($items[$delta]['video_id']) ? $items[$delta]['video_id'] : '';
-  $video_id_element = array(
-    '#markup' => '<div class="youtube-video-id">' . t('YouTube video ID: ') . $video_id . '</div>',
-  );
-  return array(
-    'input' => $element,
-    'video_id' => $video_id_element,
-  );
+  if (isset($items[$delta]['video_id'])) {
+    $video_id_element = array(
+      '#markup' => '<div class="youtube-video-id">' . t('YouTube video ID: ') . $items[$delta]['video_id'] . '</div>',
+    );
+    $return['video_id'] = $video_id_element;
+  }
+
+  return $return;
 }
 
 /**
