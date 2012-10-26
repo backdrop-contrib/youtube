@@ -52,9 +52,9 @@ function youtube_settings_form($form) {
   );
   $form['youtube_wmode'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Fix overlay problem on IE8 and lower'),
+    '#title' => t('Fix overlay problem in IE'),
     '#default_value' => variable_get('youtube_wmode', TRUE),
-    '#description' => t('Checking this will fix the issue of a YouTube video showing above a modal window (including Drupal\'s Overlay). This is needed if you have Overlay users in IE or have modal windows throughout your site.'),
+    '#description' => t('Checking this will fix the issue of a YouTube video showing above elements with fixed or absolute positioning (including Drupal\'s Overlay and Toolbar).'),
   );
   $form['youtube_suggest'] = array(
     '#type' => 'checkbox',
