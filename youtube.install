@@ -10,13 +10,13 @@
 function youtube_field_schema($field) {
   $columns = array(
     'input' => array(
-      'type' => 'varchar', 
-      'length' => 1024, 
+      'type' => 'varchar',
+      'length' => 1024,
       'not null' => FALSE,
     ),
     'video_id' => array(
-      'type' => 'varchar', 
-      'length' => 15, 
+      'type' => 'varchar',
+      'length' => 15,
       'not null' => FALSE,
     ),
   );

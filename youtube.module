@@ -5,16 +5,17 @@
  * Youtube field module adds a field for YouTube videos.
  */
 require_once (dirname(__FILE__) . '/youtube.inc');
- 
+
 /**
  * Implements hook_menu().
  */
 function youtube_menu() {
   $items['admin/config/media/youtube'] = array(
-    'title' => 'YouTube settings', 
-    'page callback' => 'drupal_get_form', 
+    'title' => 'YouTube settings',
+    'description' => 'Configure sitewide settings for embedded YouTube video fields.',
+    'page callback' => 'drupal_get_form',
     'page arguments' => array('youtube_settings_form'),
-    'access arguments' => array('administer youtube'), 
+    'access arguments' => array('administer youtube'),
     'type' => MENU_NORMAL_ITEM,
   );
 
@@ -27,7 +28,7 @@ function youtube_menu() {
 function youtube_permission() {
   return array(
     'administer youtube' => array(
-      'title' => t('Administer YouTube field'), 
+      'title' => t('Administer YouTube field'),
       'description' => t('Set default configurations for YouTube field settings.'),
     ),
   );
@@ -40,7 +41,7 @@ function youtube_settings_form($form) {
   $form = array();
   $form['text'] = array(
     '#type' => 'markup',
-    '#markup' => '<p>' . t('The following settings will be used as default values 
+    '#markup' => '<p>' . t('The following settings will be used as default values
       on all YouTube video fields.  Many of these settings can be overridden
       on a per-field basis.') . '</p>',
   );
@@ -352,8 +353,8 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
   // Add our own description if one is not provided by the UI.
   if ($element['#description'] == '') {
-    $element['#description'] = t('Enter the YouTube URL. Valid URL formats 
-      include: http://www.youtube.com/watch?v=1SqBdS0XkV4 and 
+    $element['#description'] = t('Enter the YouTube URL. Valid URL formats
+      include: http://www.youtube.com/watch?v=1SqBdS0XkV4 and
       http://youtu.be/1SqBdS0XkV4');
   }
   $return = array('input' => $element);
@@ -386,7 +387,7 @@ function youtube_input_validate($element, &$form_state, $form) {
       $video_id = substr($video_id, 0, $amp);
     }
   }
-  
+
   // The video URL in the format http://youtu.be/1SqBdS0XkV4.
   elseif (strstr($input, 'youtu.be/')) {
     $valid = TRUE;
@@ -398,7 +399,7 @@ function youtube_input_validate($element, &$form_state, $form) {
       $video_id = substr($video_id, 0, $param);
     }
   }
-  
+
   if ($valid) {
     $video_id_element = array(
       '#parents' => $element['#parents'],

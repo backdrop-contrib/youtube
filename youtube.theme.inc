@@ -41,8 +41,8 @@ function theme_youtube_video($variables) {
   $path = $protocol . '://www.' . $domain . '/embed/' . $id;
   $src = url($path, array('query' => $query));
 
-  $output = '<iframe width="' . $dimensions['width'] . '" 
-    height="' . $dimensions['height'] . '" src="' . $src . '" 
+  $output = '<iframe width="' . $dimensions['width'] . '"
+    height="' . $dimensions['height'] . '" src="' . $src . '"
     frameborder="0" allowfullscreen></iframe>';
 
   return $output;

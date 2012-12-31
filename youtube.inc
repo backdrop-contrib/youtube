@@ -47,7 +47,7 @@ function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
 function youtube_get_remote_image($id = NULL) {
   $path = 'http://gdata.youtube.com/feeds/api/videos/' . $id;
   $query = array(
-    'v' => '2', 
+    'v' => '2',
     'alt' => 'jsonc'
   );
   $url = url($path, array('query' => $query));
@@ -59,7 +59,7 @@ function youtube_get_remote_image($id = NULL) {
   // Make the actual request to download the file.
   $image_result = drupal_http_request($src);
 
-  // Assure the youtube thumbnail directory exists. 
+  // Assure the youtube thumbnail directory exists.
   $files = variable_get('file_public_path', conf_path() . '/files');
   $youtube_dir = variable_get('youtube_thumb_dir', 'youtube');
   $youtube_path = $files . '/' . $youtube_dir;
@@ -96,6 +96,6 @@ function youtube_build_remote_image_path($id = NULL) {
   $thumb2 = 'http://img.youtube.com/vi/' . $id . '/2.jpg';
   // Third thumbnail.
   $thumb3 = 'http://img.youtube.com/vi/' . $id . '/3.jpg';
-  
+
   return url($default);
 }
