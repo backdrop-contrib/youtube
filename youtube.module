@@ -96,17 +96,9 @@ function youtube_field_validate($entity_type, $entity, $field, $instance, $langc
   foreach ($items as $delta => $item) {
     if (!empty($item['input'])) {
 
-      $valid = FALSE;
-      // Video URL in the format http://www.youtube.com/watch?v=1SqBdS0XkV4.
-      if (strstr($item['input'], 'youtube.com/watch?v=')) {
-        $valid = TRUE;
-      }
-      // Video URL in the format http://youtu.be/1SqBdS0XkV4.
-      elseif (strstr($item['input'], 'youtu.be/')) {
-        $valid = TRUE;
-      }
+      $video_id = youtube_get_video_id($item['input']);
 
-      if (!$valid) {
+      if (!$video_id) {
         $errors[$field['field_name']][$langcode][$delta][] = array(
           'error' => 'youtube_invalid',
           'message' => t('Please provide a valid YouTube URL.'),
@@ -374,33 +366,10 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
  */
 function youtube_input_validate($element, &$form_state, $form) {
   $input = $element['#value'];
-  $valid = FALSE;
 
-  // The video URL in the format http://youtube.com/watch?v=1SqBdS0XkV4.
-  if (strstr($input, 'youtube.com/watch?v=')) {
-    $valid = TRUE;
-    $anchor = '?v=';
-    $position = strpos($input, $anchor);
-    $video_id = trim(substr($input, $position + strlen($anchor)));
-    // Remove additional query parameters.
-    if ($amp = strpos($video_id, '&')) {
-      $video_id = substr($video_id, 0, $amp);
-    }
-  }
+  $video_id = youtube_get_video_id($input);
 
-  // The video URL in the format http://youtu.be/1SqBdS0XkV4.
-  elseif (strstr($input, 'youtu.be/')) {
-    $valid = TRUE;
-    $anchor = 'be/';
-    $position = strpos($input, $anchor);
-    $video_id = trim(substr($input, $position + strlen($anchor)));
-    // Remove additional query parameters.
-    if ($param = strpos($video_id, '?')) {
-      $video_id = substr($video_id, 0, $param);
-    }
-  }
-
-  if ($valid) {
+  if ($video_id) {
     $video_id_element = array(
       '#parents' => $element['#parents'],
     );

@@ -6,6 +6,39 @@
  */
 
 /**
+ * Extracts the video_id from the submitted field value.
+ *
+ * @param $input
+ *   The input submitted to the field.
+ *
+ * @return
+ *   Returns the video_id if available, or FALSE if not.
+ */
+function youtube_get_video_id($input) {
+  // The video URL in the format http://youtube.com/watch?v=1SqBdS0XkV4.
+  if (strstr($input, 'youtube.com/watch?') && preg_match('/v=[^&]*(?=&|$)/', $input, $matches)) {
+    $video_id = ltrim($matches[0], 'v=');
+  }
+
+  // The video URL in the format http://youtu.be/1SqBdS0XkV4.
+  elseif (strstr($input, 'youtu.be/')) {
+    $anchor = 'be/';
+    $position = strpos($input, $anchor);
+    $video_id = trim(substr($input, $position + strlen($anchor)));
+    // Remove additional query parameters.
+    if ($param = strpos($video_id, '?')) {
+      $video_id = substr($video_id, 0, $param);
+    }
+  }
+
+  if (!empty($video_id)) {
+    return $video_id;
+  }
+
+  return FALSE;
+}
+
+/**
  * Returns a list of standard YouTube video sizes.
  */
 function youtube_size_options() {
@@ -98,4 +131,54 @@ function youtube_build_remote_image_path($id = NULL) {
   $thumb3 = 'http://img.youtube.com/vi/' . $id . '/3.jpg';
 
   return url($default);
+}
+
+/**
+ * Implements hook_feeds_processor_targets_alter().
+ *
+ * Adds a target option for YouTube fields to Feeds mapping options.
+ *
+ * @param &$targets
+ *   Array containing the targets to be offered to the user. Add to this array
+ *   to expose additional options. Remove from this array to suppress options.
+ *   Remove with caution.
+ * @param $entity_type
+ *   The entity type of the target, for instance a 'node' entity.
+ * @param $bundle_name
+ *   The bundle name for which to alter targets.
+ */
+function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
+  foreach (field_info_instances($entity_type, $bundle_name) as $name => $instance) {
+    $info = field_info_field($name);
+
+    if (in_array($info['type'], array('youtube'))) {
+      $targets[$name] = array(
+        'name' => check_plain($instance['label']),
+        'callback' => 'youtube_set_target',
+        'description' => t('The @label field of the node.', array('@label' => $instance['label'])),
+      );
+    }
+  }
+}
+
+/**
+ * Callback to set the Feeds target for a YouTube field.
+ *
+ * @param $source
+ *   Field mapper source settings.
+ * @param $entity
+ *   An entity object, for instance a node object.
+ * @param $target
+ *   A string identifying the target on the node.
+ * @param $value
+ *   The value to populate the target with.
+ */
+function youtube_set_target($source, $entity, $target, $value, $mapping) {
+  $video_id = youtube_get_video_id($value);
+  if ($video_id) {
+    $entity->{$target}[LANGUAGE_NONE][0] = array(
+      'input' => $value,
+      'video_id' => $video_id,
+    );
+  }
 }
