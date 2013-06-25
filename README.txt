@@ -20,7 +20,7 @@ Install this module as usual. Please see
 http://drupal.org/documentation/install/modules-themes/modules-7
 
 
-USEAGE
+USAGE
 -------
 To use this module create a new field of type 'YouTube video'. This field will
 accept YouTube URLs of the following formats:
