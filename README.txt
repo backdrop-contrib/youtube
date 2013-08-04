@@ -39,6 +39,8 @@ a custom size, with the ability to auto-play if necessary. The thumbnail of the
 YouTube image can also be used and it can be linked to the full entity or the
 video on YouTube.
 
+General and default settings can be configured at admin/config/media/youtube
+
 To configure the field settings:
 
  1. click 'manage display' on the listing of entity types
