@@ -5,7 +5,7 @@ YouTube video to a content type, user, or any entity.
 
 Display types include:
 
- * YouTube videos of various sizes.
+ * YouTube videos of various sizes and options.
  * YouTube thumbnails with image styles.
 
 
@@ -34,12 +34,15 @@ additional parameters after the URL will be ignored.
 
 CONFIGURATION
 --------------
-A YouTube field can be output as a video of at one of four standard sizes, or at
-a custom size, with the ability to auto-play if necessary. The thumbnail of the
-YouTube image can also be used and it can be linked to the full entity or the
-video on YouTube.
+Global module settings can be found at admin/config/media/youtube.
 
-General and default settings can be configured at admin/config/media/youtube
+The video output of a YouTube field can be manipulated in three ways:
+ * global parameters found on the configuration page mentioned above
+ * field-specific parameters found in that particular field's display settings
+ * Views settings for the specific field
+
+The thumbnail of the YouTube image can also be used and can link to either the
+content, the video on YouTube, or nothing at all.
 
 To configure the field settings:
 

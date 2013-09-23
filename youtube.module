@@ -42,25 +42,61 @@ function youtube_settings_form($form) {
   $form['text'] = array(
     '#type' => 'markup',
     '#markup' => '<p>' . t('The following settings will be used as default values
-      on all YouTube video fields.  Many of these settings can be overridden
-      on a per-field basis.') . '</p>',
+      on all YouTube video fields.  More settings can be altered in the display
+      settings of individual fields.') . '</p>',
   );
-  $form['youtube_privacy'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable privacy-enhanced mode'),
-    '#default_value' => variable_get('youtube_privacy', FALSE),
-    '#description' => t('Checking this box will prevent YouTube from setting cookies in your site visitors browser.'),
+  $form['youtube_global'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Video Parameters',
   );
-  $form['youtube_wmode'] = array(
+  $form['youtube_global']['youtube_suggest'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Fix overlay problem in IE'),
+    '#title' => t('Show suggested videos when the video finishes (rel).'),
+    '#default_value' => variable_get('youtube_suggest', TRUE),
+  );
+  $form['youtube_global']['youtube_modestbranding'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Do not show YouTube logo on video player (modestbranding).'),
+    '#default_value' => variable_get('youtube_modestbranding', FALSE),
+  );
+  $form['youtube_global']['youtube_theme'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use a light colored control bar for video player controls (theme).'),
+    '#default_value' => variable_get('youtube_theme', FALSE),
+  );
+  $form['youtube_global']['youtube_color'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use a white colored video progress bar (color).'),
+    '#default_value' => variable_get('youtube_color', FALSE),
+    '#description' => 'Note: the modestbranding parameter will be ignored when this is in use.',
+  );
+  $form['youtube_global']['youtube_enablejsapi'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable use of the JavaScript API (enablejsapi, origin).'),
+    '#default_value' => variable_get('youtube_enablejsapi', FALSE),
+    '#description' => 'For more information on the Javascript API and how to use it, see the <a href="https://developers.google.com/youtube/js_api_reference">JavaScript API documentation</a>.',
+  );
+  $form['youtube_global']['youtube_playerid'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Javascript API Player ID'),
+    '#default_value' => variable_get('youtube_playerid', 'youtube-field-player'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="youtube_enablejsapi"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+  $form['youtube_global']['youtube_wmode'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Fix overlay problem in IE (wmode).'),
     '#default_value' => variable_get('youtube_wmode', TRUE),
     '#description' => t('Checking this will fix the issue of a YouTube video showing above elements with fixed or absolute positioning (including Drupal\'s Overlay and Toolbar).'),
   );
-  $form['youtube_suggest'] = array(
+  $form['youtube_privacy'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Show suggested videos when the video finishes'),
-    '#default_value' => variable_get('youtube_suggest', TRUE),
+    '#title' => t('Enable privacy-enhanced mode.'),
+    '#default_value' => variable_get('youtube_privacy', FALSE),
+    '#description' => t('Checking this box will prevent YouTube from setting cookies in your site visitors browser.'),
   );
   $form['youtube_thumb_dir'] = array(
     '#type' => 'textfield',
@@ -129,6 +165,10 @@ function youtube_field_formatter_info() {
         'youtube_width' => NULL,
         'youtube_height' => NULL,
         'youtube_autoplay' => FALSE,
+        'youtube_showinfo' => FALSE,
+        'youtube_controls' => FALSE,
+        'youtube_autohide' => FALSE,
+        'youtube_iv_load_policy' => FALSE,
       ),
     ),
     // This formatter just displays a thumbnail for your video.
@@ -183,8 +223,28 @@ function youtube_field_formatter_settings_form($field, $instance, $view_mode, $f
     );
     $element['youtube_autoplay'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Play video automatically when loaded (Autoplay).'),
+      '#title' => t('Play video automatically when loaded (autoplay).'),
       '#default_value' => $settings['youtube_autoplay'],
+    );
+    $element['youtube_showinfo'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Hide video title and uploader info (showinfo).'),
+      '#default_value' => $settings['youtube_showinfo'],
+    );
+    $element['youtube_controls'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Always hide video controls (controls).'),
+      '#default_value' => $settings['youtube_controls'],
+    );
+    $element['youtube_autohide'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Hide video controls after play begins (autohide).'),
+      '#default_value' => $settings['youtube_autohide'],
+    );
+    $element['youtube_iv_load_policy'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Hide video annotations by default (iv_load_policy).'),
+      '#default_value' => $settings['youtube_iv_load_policy'],
     );
   }
 
@@ -221,6 +281,14 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
+  $parameters = array(
+    $settings['youtube_autoplay'],
+    $settings['youtube_showinfo'],
+    $settings['youtube_controls'],
+    $settings['youtube_autohide'],
+    $settings['youtube_iv_load_policy'],
+  );
+
   // Summary for the video style.
   if ($display['type'] == 'youtube_video') {
     $video_sizes = youtube_size_options();
@@ -230,8 +298,11 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
     else {
       $summary = t('YouTube video: 450px by 315px');
     }
-    if ($settings['youtube_autoplay']) {
-      $summary .= t(', Autoplay');
+    foreach ($parameters as $parameter) {
+      if ($parameter) {
+        $summary .= t(', custom parameters');
+        break;
+      }
     }
     return $summary;
   }
@@ -276,6 +347,10 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
           '#width' => array_key_exists('youtube_width', $display['settings']) ? $display['settings']['youtube_width'] : NULL,
           '#height' => array_key_exists('youtube_height', $display['settings']) ? $display['settings']['youtube_height'] : NULL,
           '#autoplay' => array_key_exists('youtube_autoplay', $display['settings']) ? $display['settings']['youtube_autoplay'] : FALSE,
+          '#showinfo' => array_key_exists('youtube_showinfo', $display['settings']) ? $display['settings']['youtube_showinfo'] : FALSE,
+          '#controls' => array_key_exists('youtube_controls', $display['settings']) ? $display['settings']['youtube_controls'] : FALSE,
+          '#autohide' => array_key_exists('youtube_autohide', $display['settings']) ? $display['settings']['youtube_autohide'] : FALSE,
+          '#iv_load_policy' => array_key_exists('youtube_iv_load_policy', $display['settings']) ? $display['settings']['youtube_iv_load_policy'] : FALSE,
         );
       }
       break;
@@ -396,11 +471,25 @@ function youtube_field_widget_error($element, $error, $form, &$form_state) {
 function youtube_theme($existing, $type, $theme, $path) {
   return array(
     'youtube_thumbnail' => array(
-      'variables' => array('video_id' => NULL, 'image_style' => NULL, 'image_link' => NULL),
+      'variables' => array(
+        'video_id' => NULL,
+        'image_style' => NULL,
+        'image_link' => NULL
+      ),
       'file' => 'youtube.theme.inc',
     ),
     'youtube_video' => array(
-      'variables' => array('video_id' => NULL, 'size' => NULL, 'width' => NULL, 'height' => NULL, 'autoplay' => FALSE),
+      'variables' => array(
+        'video_id' => NULL,
+        'size' => NULL,
+        'width' => NULL,
+        'height' => NULL,
+        'autoplay' => FALSE,
+        'showinfo' => FALSE,
+        'controls' => FALSE,
+        'autohide' => FALSE,
+        'iv_load_policy' => FALSE,
+      ),
       'file' => 'youtube.theme.inc',
     ),
   );
