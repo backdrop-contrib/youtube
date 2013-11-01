@@ -89,6 +89,10 @@ function theme_youtube_video($variables) {
     height="' . $dimensions['height'] . '" src="' . $src . '"
     frameborder="0" allowfullscreen></iframe>';
 
+  if ($size == 'responsive') {
+    $output = '<div class="youtube-container--responsive">' . $output . '</div>';
+  }
+
   return $output;
 }
 

@@ -47,6 +47,7 @@ function youtube_size_options() {
     '480x360' => '480px by 360px',
     '640x480' => '640px by 480px',
     '960x720' => '960px by 720px',
+    'responsive' => 'responsive (full-width of container)',
     'custom' => 'custom',
   );
 }
@@ -56,7 +57,11 @@ function youtube_size_options() {
  */
 function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
   $dimensions = array();
-  if ($size == 'custom') {
+  if ($size == 'responsive') {
+    $dimensions['width'] = '100%';
+    $dimensions['height'] = '100%';
+  }
+  elseif ($size == 'custom') {
     $dimensions['width'] = (int) $width;
     $dimensions['height'] = (int) $height;
   }

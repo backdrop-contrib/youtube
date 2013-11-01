@@ -5,4 +5,5 @@ core = 7.x
 dependencies[] = field
 dependencies[] = image
 dependencies[] = file
+stylesheets[all][] = css/youtube.css
 configure = admin/config/media/youtube
