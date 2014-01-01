@@ -81,18 +81,37 @@ function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
  * Retreve youtube thumbnail image via YouTube API.
  *
  * TODO add error messaging if something goes wrong, and return FALSE.
+ *
+ * @param $id
+ *   The video_id of the particular YouTube video.
+ * @param $force_small
+ *   When TRUE, this function should return the standard size image regardless
+ *   of what the youtube_thumb_hires variable is set to. This is used should
+ *   the high resolution image be found to not exist for a particular video.
  */
-function youtube_get_remote_image($id = NULL) {
-  $path = 'http://gdata.youtube.com/feeds/api/videos/' . $id;
-  $query = array(
-    'v' => '2',
-    'alt' => 'jsonc'
-  );
-  $url = url($path, array('query' => $query));
-  $result = drupal_http_request($url);
-  $data = json_decode($result->data);
-  // Get the high quality default thumbnail.
-  $src = $data->data->thumbnail->hqDefault;
+function youtube_get_remote_image($id = NULL, $force_small = FALSE) {
+  // This variable is TRUE when higher resolution thumnbails should be saved.
+  // The only thumbnail resolution higher than the standard 480 is
+  // 'maxresdefault'. This resolution image is not guaranteed to exist. After
+  // saving the file, we check to ensure that it does.
+  $youtube_thumb_hires = variable_get('youtube_thumb_hires', FALSE);
+
+  if ($youtube_thumb_hires && !$force_small) {
+    // Again, the high resolution image is not available via JSON-C API.
+    $src = youtube_build_remote_image_path($id, 'maxresdefault');
+  }
+  else {
+    $path = 'http://gdata.youtube.com/feeds/api/videos/' . $id;
+    $query = array(
+      'v' => '2', 
+      'alt' => 'jsonc'
+    );
+    $url = url($path, array('query' => $query));
+    $result = drupal_http_request($url);
+    $data = json_decode($result->data);
+    // Get the high quality default thumbnail.
+    $src = $data->data->thumbnail->hqDefault;
+  }
 
   // Make the actual request to download the file.
   $image_result = drupal_http_request($src);
@@ -109,33 +128,54 @@ function youtube_get_remote_image($id = NULL) {
   $dest = $files . '/' . $youtube_dir . '/' . $id . '.png';
   file_put_contents($dest, $image_result->data);
 
+  // If the high resolution image was saved but didn't actually exist, a very
+  // small placeholder image from YouTube will have been saved. By checking the
+  // dimensions of this image, we can determine if we saved the placeholder.
+  if ($youtube_thumb_hires && !$force_small) {
+    $image_path = $files . '/' . $youtube_dir . '/' . $id . '.png';
+    if (file_exists($image_path)) {
+      $image_size = getimagesize($image_path);
+      if (empty($image_size[0]) || $image_size[0] < 480) {
+        // We saved the placeholder. Re-run this function with $force_small
+        // set to TRUE. This will give us the standard, guaranteed, thumbnail.
+        youtube_get_remote_image($id, TRUE);
+      }
+    }
+  }
+
   return TRUE;
 }
 
 /**
- * Get images by building correctly formed URL - kinda hackey.
+ * Get YouTube image path by building correctly formed URL.
+ *
+ * @param $video_id
+ *   The ID of the video to grab the thumbnail from.
+ * @param  $version
+ *   Which version of the thumbnail to grab.
+ * @return string
+ *   The youtube.com image path to the specified version/video.
  */
-function youtube_build_remote_image_path($id = NULL) {
-  if (!$id) {
+function youtube_build_remote_image_path($video_id = NULL, $version = '0') {
+  // The different versions of the image made available by YouTube.
+  // http://stackoverflow.com/questions/2068344/how-to-get-thumbnail-of-youtube-video-link-using-youtube-api
+  $versions = array(
+    '0',
+    'hqdefault',
+    'mqdefault',
+    'maxresdefault',
+    'default',
+    '1',
+    '2',
+    '3',
+  );
+
+  if (!$video_id || !in_array($version, $versions)) {
     return;
   }
-  // Default image thumbnail.
-  $default = 'http://img.youtube.com/vi/' . $id . '/default.jpg';
 
-  // Full size image.
-  $full_size = 'http://img.youtube.com/vi/' . $id . '/0.jpg';
-  // High Quality version of the default thumbnail.
-  $hq_default = 'http://img.youtube.com/vi/' . $id . '/hqdefault.jpg';
-  // High Resolution version of the default thumbnail.
-  $max_res_default = 'http://img.youtube.com/vi/' . $id . '/maxresdefault.jpg'; // May not work.
-  // First thumbnail.
-  $thumb1 = 'http://img.youtube.com/vi/' . $id . '/1.jpg';
-  // Second thumbnail.
-  $thumb2 = 'http://img.youtube.com/vi/' . $id . '/2.jpg';
-  // Third thumbnail.
-  $thumb3 = 'http://img.youtube.com/vi/' . $id . '/3.jpg';
-
-  return url($default);
+  $version_path = 'http://img.youtube.com/vi/' . $video_id . '/' . $version . '.jpg';
+  return url($version_path);
 }
 
 /**

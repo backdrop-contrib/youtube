@@ -106,6 +106,12 @@ function youtube_settings_form($form) {
     '#description' => t('Location, within the files directory, where you would like the YouTube thumbnails stored.'),
     '#default_value' => variable_get('youtube_thumb_dir', 'youtube'),
   );
+  $form['youtube_thumb_hires'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Save higher resolution thumbnail images'),
+    '#description' => t('This will save thumbnails larger than the default size, 480x360, to the thumbnails directory specified above.'),
+    '#default_value' => variable_get('youtube_thumb_hires', FALSE),
+  );
 
   return system_settings_form($form);
 }
