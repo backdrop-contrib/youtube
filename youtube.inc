@@ -110,7 +110,12 @@ function youtube_get_remote_image($id = NULL, $force_small = FALSE) {
     $result = drupal_http_request($url);
     $data = json_decode($result->data);
     // Get the high quality default thumbnail.
-    $src = $data->data->thumbnail->hqDefault;
+    if (!empty($data->data)) {
+      $src = $data->data->thumbnail->hqDefault;
+    }
+    else {
+      $src = youtube_build_remote_image_path($id);
+    }
   }
 
   // Make the actual request to download the file.
