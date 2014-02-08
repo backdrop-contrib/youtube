@@ -15,21 +15,9 @@
  *   Returns the video_id if available, or FALSE if not.
  */
 function youtube_get_video_id($input) {
-  // The video URL in the format http://youtube.com/watch?v=1SqBdS0XkV4.
-  if (strstr($input, 'youtube.com/watch?') && preg_match('/v=[^&]*(?=&|$)/', $input, $matches)) {
-    $video_id = ltrim($matches[0], 'v=');
-  }
-
-  // The video URL in the format http://youtu.be/1SqBdS0XkV4.
-  elseif (strstr($input, 'youtu.be/')) {
-    $anchor = 'be/';
-    $position = strpos($input, $anchor);
-    $video_id = trim(substr($input, $position + strlen($anchor)));
-    // Remove additional query parameters.
-    if ($param = strpos($video_id, '?')) {
-      $video_id = substr($video_id, 0, $param);
-    }
-  }
+  // See README.txt for accepted URL formats.
+  preg_match("/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'>]+)/", $input, $matches);
+  $video_id = $matches[1];
 
   if (!empty($video_id)) {
     return $video_id;
