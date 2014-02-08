@@ -287,14 +287,6 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
 
-  $parameters = array(
-    $settings['youtube_autoplay'],
-    $settings['youtube_showinfo'],
-    $settings['youtube_controls'],
-    $settings['youtube_autohide'],
-    $settings['youtube_iv_load_policy'],
-  );
-
   // Summary for the video style.
   if ($display['type'] == 'youtube_video') {
     $video_sizes = youtube_size_options();
@@ -304,6 +296,15 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
     else {
       $summary = t('YouTube video: 450px by 315px');
     }
+
+    $parameters = array(
+      $settings['youtube_autoplay'],
+      $settings['youtube_showinfo'],
+      $settings['youtube_controls'],
+      $settings['youtube_autohide'],
+      $settings['youtube_iv_load_policy'],
+    );
+
     foreach ($parameters as $parameter) {
       if ($parameter) {
         $summary .= t(', custom parameters');
