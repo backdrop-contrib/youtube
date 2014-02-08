@@ -27,9 +27,13 @@ accept YouTube URLs of the following formats:
 
  * http://youtube.com/watch?v=[video_id]
  * http://youtu.be/[video_id]
+ * http://youtube.com/v/[video_id]
+ * http://youtube.com/embed/[video_id]
+ * http://youtube.com/?v=[video_id]
 
-It will not be a problem if users submit values with http:// or https:// and
-additional parameters after the URL will be ignored.
+All formats listed above can also be provided without 'http://', with 'www.',
+or with 'https://' rather than 'http://'. The last format can be provided with
+additional parameters (ignored) and v does not have to be the first parameter.
 
 
 CONFIGURATION
