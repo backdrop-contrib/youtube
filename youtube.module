@@ -127,6 +127,47 @@ function youtube_field_info() {
       'description' => t('A video hosted on YouTube.'),
       'default_widget' => 'youtube',
       'default_formatter' => 'youtube_video',
+      'property_type' => 'youtube',
+      'property_callbacks' => array('youtube_property_info_callback'),
+    ),
+  );
+}
+
+/**
+ * Callback to alter the property info of youtube fields.
+ *
+ * @see hook_field_info().
+ */
+function youtube_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
+  $name = $field['field_name'];
+  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$name];
+
+  $property['type'] = ($field['cardinality'] != 1) ? 'list<youtube>' : 'youtube';
+  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
+  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
+  $property['property info'] = youtube_field_data_property_info();
+
+  unset($property['query callback']);
+}
+
+/**
+ * Defines info for the properties of youtube field data.
+ */
+function youtube_field_data_property_info($name = NULL) {
+  return array(
+    'input' => array(
+      'label' => t('YouTube URL'),
+      'description' => t('The absolute URL for the YouTube video.'),
+      'type' => 'text',
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
+    ),
+    'video_id' => array(
+      'label' => t('YouTube Video ID'),
+      'description' => t('The ID assigned to the YouTube video'),
+      'type' => 'text',
+      'getter callback' => 'entity_property_verbatim_get',
+      'setter callback' => 'entity_property_verbatim_set',
     ),
   );
 }
