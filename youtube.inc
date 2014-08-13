@@ -41,6 +41,22 @@ function youtube_size_options() {
 }
 
 /**
+ * Returns a list of thumbnail link types.
+ */
+function youtube_thumbnail_link_types() {
+  $link_types = array(
+    'content' => t('Content'),
+    'youtube' => t('YouTube'),
+  );
+
+  if (module_exists('youtube_colorbox')) {
+    $link_types['colorbox'] = t('Colorbox');
+  }
+
+  return $link_types;
+}
+
+/**
  * Splits height and width when given size, as from youtube_size_options.
  */
 function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {

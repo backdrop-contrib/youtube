@@ -35,6 +35,9 @@ All formats listed above can also be provided without 'http://', with 'www.',
 or with 'https://' rather than 'http://'. The last format can be provided with
 additional parameters (ignored) and v does not have to be the first parameter.
 
+To enable Colorbox support, enable the YouTube Field Colorbox module included in
+this directory and consult its README file.
+
 
 CONFIGURATION
 --------------
