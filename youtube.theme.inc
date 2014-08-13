@@ -27,16 +27,10 @@ function theme_youtube_video($variables) {
   $theme = variable_get('youtube_theme', FALSE);
   $color = variable_get('youtube_color', FALSE);
   $enablejsapi = variable_get('youtube_enablejsapi', FALSE);
+  $player_class = variable_get('youtube_player_class', 'youtube-field-player');
   $wmode = variable_get('youtube_wmode', TRUE);
   $privacy = variable_get('youtube_privacy', FALSE);
   $dimensions = youtube_get_dimensions($size, $width, $height);
-
-  if ($enablejsapi) {
-    $playerid = variable_get('youtube_playerid', 'youtube-field-player');
-  }
-  else {
-    $playerid = 'youtube-field-player';
-  }
 
   // Protocol changes based on current page TODO.
   $protocol = (isset($_SERVER['HTTPS'])) ? 'https' : 'http';
@@ -85,9 +79,9 @@ function theme_youtube_video($variables) {
   $path = $protocol . '://www.' . $domain . '/embed/' . $id;
   $src = url($path, array('query' => $query));
 
-  $output = '<iframe id="' . $playerid . '" width="' . $dimensions['width'] . '"
-    height="' . $dimensions['height'] . '" src="' . $src . '"
-    frameborder="0" allowfullscreen></iframe>';
+  $output = '<iframe id="' . drupal_html_id($player_class) . '" class="' . $player_class . '"
+    width="' . $dimensions['width'] . '" height="' . $dimensions['height'] . '"
+    src="' . $src . '" frameborder="0" allowfullscreen></iframe>';
 
   if ($size == 'responsive') {
     $output = '<div class="youtube-container--responsive">' . $output . '</div>';

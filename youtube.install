@@ -39,9 +39,21 @@ function youtube_uninstall() {
   variable_del('youtube_theme');
   variable_del('youtube_color');
   variable_del('youtube_enablejsapi');
-  variable_del('youtube_playerid');
+  variable_del('youtube_player_class');
   variable_del('youtube_privacy');
   variable_del('youtube_thumb_dir');
   variable_del('youtube_thumb_hires');
   variable_del('youtube_wmode');
+}
+
+/**
+ * Replace the youtube_playerid setting variable with youtube_player_class. This
+ * is needed to fix issue of duplicate player IDs on the same page.
+ */
+function youtube_update_7103() {
+  $legacy_player_id = variable_get('youtube_playerid');
+  if ($legacy_player_id) {
+    variable_set('youtube_player_class', $legacy_player_id);
+  }
+  variable_del('youtube_playerid');
 }

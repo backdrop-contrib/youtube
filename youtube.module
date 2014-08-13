@@ -76,16 +76,6 @@ function youtube_settings_form($form) {
     '#default_value' => variable_get('youtube_enablejsapi', FALSE),
     '#description' => 'For more information on the Javascript API and how to use it, see the <a href="https://developers.google.com/youtube/js_api_reference">JavaScript API documentation</a>.',
   );
-  $form['youtube_global']['youtube_playerid'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Javascript API Player ID'),
-    '#default_value' => variable_get('youtube_playerid', 'youtube-field-player'),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="youtube_enablejsapi"]' => array('checked' => TRUE),
-      ),
-    ),
-  );
   $form['youtube_global']['youtube_wmode'] = array(
     '#type' => 'checkbox',
     '#title' => t('Fix overlay problem in IE (wmode).'),
@@ -97,6 +87,12 @@ function youtube_settings_form($form) {
     '#title' => t('Enable privacy-enhanced mode.'),
     '#default_value' => variable_get('youtube_privacy', FALSE),
     '#description' => t('Checking this box will prevent YouTube from setting cookies in your site visitors browser.'),
+  );
+  $form['youtube_player_class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('YouTube player class'),
+    '#default_value' => variable_get('youtube_player_class', 'youtube-field-player'),
+    '#description' => t('The iframe of every player will be given this class. They will also be given IDs based off of this value.'),
   );
   $form['youtube_thumb_dir'] = array(
     '#type' => 'textfield',
