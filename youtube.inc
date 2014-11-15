@@ -66,8 +66,8 @@ function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
     $dimensions['height'] = '100%';
   }
   elseif ($size == 'custom') {
-    $dimensions['width'] = (int) $width;
-    $dimensions['height'] = (int) $height;
+    $dimensions['width'] = strstr($width, '%') ? (int) $width . '%' : (int) $width;
+    $dimensions['height'] = strstr($height, '%') ? (int) $height . '%' : (int) $height;
   }
   else {
     // Locate the 'x'.
