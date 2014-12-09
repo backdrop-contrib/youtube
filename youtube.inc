@@ -237,12 +237,10 @@ function youtube_set_target($source, $entity, $target, $value, $mapping) {
   }
 
   $info = field_info_field($target);
-
-  // Iterate over all values.
-  $field = isset($entity->$target) ? $entity->$target : array('und' => array());
+  $field = isset($entity->$target) ? $entity->$target : array(LANGUAGE_NONE => array());
 
   // Allow for multiple mappings to the same target.
-  $delta = count($field[$entity->language]);
+  $delta = count($field[LANGUAGE_NONE]);
 
   foreach ($value as $v) {
     if ($info['cardinality'] == $delta) {
@@ -256,7 +254,7 @@ function youtube_set_target($source, $entity, $target, $value, $mapping) {
     if (is_scalar($v)) {
       $video_id = youtube_get_video_id($v);
       if ($video_id) {
-        $entity->{$target}[$entity->language][$delta] = array(
+        $entity->{$target}[LANGUAGE_NONE][$delta] = array(
           'input' => $v,
           'video_id' => $video_id,
         );
