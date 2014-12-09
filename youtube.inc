@@ -242,7 +242,7 @@ function youtube_set_target($source, $entity, $target, $value, $mapping) {
   $info = field_info_field($target);
   $field = isset($entity->$target) ? $entity->$target : array(LANGUAGE_NONE => array());
 
-  // Allow for multiple mappings to the same target.
+  // Allow for mappings to a multi-value field on the same target.
   $delta = count($field[LANGUAGE_NONE]);
 
   foreach ($value as $v) {
