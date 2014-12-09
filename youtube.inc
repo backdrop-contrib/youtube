@@ -226,6 +226,9 @@ function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_
  *   A string identifying the target on the node.
  * @param $value
  *   The value to populate the target with.
+ * @param $mapping
+ *   Associative array of the mapping settings from the per mapping
+ *   configuration form.
  */
 function youtube_set_target($source, $entity, $target, $value, $mapping) {
   if (empty($value)) {
