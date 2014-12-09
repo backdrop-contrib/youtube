@@ -228,12 +228,41 @@ function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_
  *   The value to populate the target with.
  */
 function youtube_set_target($source, $entity, $target, $value, $mapping) {
-  $video_id = youtube_get_video_id($value);
-  if ($video_id) {
-    $entity->{$target}[LANGUAGE_NONE][0] = array(
-      'input' => $value,
-      'video_id' => $video_id,
-    );
+  if (empty($value)) {
+    return;
+  }
+
+  if (!is_array($value)) {
+    $value = array($value);
+  }
+
+  $info = field_info_field($target);
+
+  // Iterate over all values.
+  $field = isset($entity->$target) ? $entity->$target : array('und' => array());
+
+  // Allow for multiple mappings to the same target.
+  $delta = count($field[$entity->language]);
+
+  foreach ($value as $v) {
+    if ($info['cardinality'] == $delta) {
+      break;
+    }
+
+    if (is_object($v) && ($v instanceof FeedsElement)) {
+      $v = $v->getValue();
+    }
+
+    if (is_scalar($v)) {
+      $video_id = youtube_get_video_id($v);
+      if ($video_id) {
+        $entity->{$target}[$entity->language][$delta] = array(
+          'input' => $v,
+          'video_id' => $video_id,
+        );
+        $delta++;
+      }
+    }
   }
 }
 
