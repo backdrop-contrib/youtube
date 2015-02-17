@@ -156,6 +156,31 @@ function youtube_get_remote_image($id = NULL, $force_small = FALSE) {
 }
 
 /**
+ * Submit callback; delete all existing thumbnail image files.
+ *
+ * @see youtube_settings_form()
+ */
+function youtube_thumb_delete_all($form, &$form_state) {
+  $files = variable_get('file_public_path', conf_path() . '/files');
+  $youtube_dir = variable_get('youtube_thumb_dir', 'youtube');
+  $youtube_path = $files . '/' . $youtube_dir;
+
+  $imagestyleflush = t('Derivatives generated with image styles were not
+    deleted. <a href="@imagestyleflush">Image style flush</a> may help with that.',
+    array('@imagestyleflush' => 'https://www.drupal.org/project/imagestyleflush'));
+
+  if (file_prepare_directory($youtube_path) && file_unmanaged_delete_recursive($youtube_path)) {
+    drupal_set_message(t('All YouTube Field thumbnail image files have been
+      deleted and will be redownloaded upon the next page load.'));
+    drupal_set_message($imagestyleflush);
+  }
+  else {
+    drupal_set_message(t('There were no thumbnails to delete.'), 'warning');
+    drupal_set_message($imagestyleflush, 'warning');
+  }
+}
+
+/**
  * Get YouTube image path by building correctly formed URL.
  *
  * @param $video_id
