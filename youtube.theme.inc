@@ -76,9 +76,14 @@ function theme_youtube_video($variables) {
   $path = 'https://www.' . $domain . '/embed/' . $id;
   $src = url($path, array('query' => $query));
 
+  $player_title = t('Embedded video for @entity_title', array(
+    '@entity_title' => $variables['entity_title'],
+  ));
+
   $output = '<iframe id="' . drupal_html_id($player_class) . '" class="' . $player_class . '"
     width="' . $dimensions['width'] . '" height="' . $dimensions['height'] . '"
-    src="' . $src . '" frameborder="0" allowfullscreen></iframe>';
+    src="' . $src . '" title="' . $player_title . '" frameborder="0"
+    allowfullscreen></iframe>';
 
   if ($size == 'responsive') {
     $output = '<div class="youtube-container--responsive">' . $output . '</div>';
