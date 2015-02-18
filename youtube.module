@@ -47,7 +47,7 @@ function youtube_settings_form($form) {
   );
   $form['youtube_global'] = array(
     '#type' => 'fieldset',
-    '#title' => 'Video Parameters',
+    '#title' => t('Video parameters'),
   );
   $form['youtube_global']['youtube_suggest'] = array(
     '#type' => 'checkbox',
@@ -84,7 +84,7 @@ function youtube_settings_form($form) {
   );
   $form['youtube_thumbs'] = array(
     '#type' => 'fieldset',
-    '#title' => 'thumbnails',
+    '#title' => t('Thumbnails'),
   );
   $form['youtube_thumbs']['youtube_thumb_dir'] = array(
     '#type' => 'textfield',
