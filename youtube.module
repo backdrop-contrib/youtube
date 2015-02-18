@@ -186,7 +186,7 @@ function youtube_field_validate($entity_type, $entity, $field, $instance, $langc
 
       $video_id = youtube_get_video_id($item['input']);
 
-      if (!$video_id) {
+      if (!$video_id || strlen($video_id) > 15) {
         $errors[$field['field_name']][$langcode][$delta][] = array(
           'error' => 'youtube_invalid',
           'message' => t('Please provide a valid YouTube URL.'),
