@@ -120,7 +120,7 @@ function youtube_colorbox_element_is_int($element, $form_state, $form) {
  */
 function youtube_colorbox_field_item_uri($item, $settings) {
   $uri = array(
-    'path' => 'http://youtube.com/embed/' . $item['video_id'],
+    'path' => '//youtube.com/embed/' . $item['video_id'],
     'options' => array(
       'attributes' => array(
         'class' => 'colorbox-load',
