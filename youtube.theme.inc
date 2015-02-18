@@ -32,9 +32,6 @@ function theme_youtube_video($variables) {
   $privacy = variable_get('youtube_privacy', FALSE);
   $dimensions = youtube_get_dimensions($size, $width, $height);
 
-  // Protocol changes based on current page TODO.
-  $protocol = (isset($_SERVER['HTTPS'])) ? 'https' : 'http';
-
   // Query string changes based on setings.
   $query = array();
   if (!$suggest) {
@@ -76,7 +73,7 @@ function theme_youtube_video($variables) {
   // Domain changes based on settings.
   $domain = ($privacy) ? 'youtube-nocookie.com' : 'youtube.com';
 
-  $path = $protocol . '://www.' . $domain . '/embed/' . $id;
+  $path = 'https://www.' . $domain . '/embed/' . $id;
   $src = url($path, array('query' => $query));
 
   $output = '<iframe id="' . drupal_html_id($player_class) . '" class="' . $player_class . '"
