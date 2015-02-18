@@ -52,7 +52,7 @@ function theme_youtube_video($variables) {
   if ($enablejsapi) {
     global $base_url;
     $query['enablejsapi'] = '1';
-    $query['origin'] = parse_url($base_url, PHP_URL_HOST);
+    $query['origin'] = $base_url;
   }
   if ($wmode) {
     $query['wmode'] = 'opaque';
