@@ -385,12 +385,12 @@ function youtube_tokens($type, $tokens, array $data = array(), array $options = 
     foreach ($tokens as $name => $original) {
       if (!strpos($name, '__youtube_')) {
         // This isn't a youtube token!
-        return;
+        continue;
       }
 
       $token_pieces = explode('__', $name);
       if (count($token_pieces) != 2) {
-        return;
+        continue;
       }
 
       $field_name = $token_pieces[0];
