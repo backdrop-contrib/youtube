@@ -118,13 +118,21 @@ function theme_youtube_thumbnail($variables) {
     }
   }
 
+  $alt = t('Embedded thumbnail for @entity_title', array(
+    '@entity_title' => $variables['entity_title'],
+  ));
+
   if ($style) {
     $uri = 'public://' . $youtube . '/' . $id . '.png';
-    $image = theme('image_style', array('style_name' => $style, 'path' => $uri));
+    $image = theme('image_style', array(
+      'style_name' => $style,
+      'path' => $uri,
+      'alt' => $alt,
+    ));
   }
   else {
     $path = $files . '/' . $youtube . '/' . $id . '.png';
-    $image = theme('image', array('path' => $path));
+    $image = theme('image', array('path' => $path, 'alt' => $alt));
   }
 
   // Check if an url path is provided

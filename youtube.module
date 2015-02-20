@@ -451,6 +451,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
         $element[$delta] = array(
           '#theme' => 'youtube_thumbnail',
           '#video_id' => $item['video_id'],
+          '#entity_title' => $entity->title,
           '#image_style' => $display['settings']['image_style'],
           '#image_link' => isset($uri) ? $uri : '',
         );
@@ -543,6 +544,7 @@ function youtube_theme($existing, $type, $theme, $path) {
     'youtube_thumbnail' => array(
       'variables' => array(
         'video_id' => NULL,
+        'entity_title' => NULL,
         'image_style' => NULL,
         'image_link' => NULL
       ),
