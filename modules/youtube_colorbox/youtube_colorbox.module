@@ -147,8 +147,12 @@ function youtube_colorbox_field_item_uri($item, $settings) {
   $parameters = $settings['colorbox']['parameters'];
 
   // Invert parameters that should be 0 when their options are selected.
-  $parameters['showinfo'] = $parameters['showinfo'] ? 0 : 1;
-  $parameters['controls'] = $parameters['controls'] ? 0 : 1;
+  $invert_parameters = array('showinfo', 'controls');
+  foreach ($invert_parameters as $parameter) {
+    if (isset($parameters[$parameter])) {
+      $parameters[$parameter] = $parameters[$parameter] ? 0 : 1;
+    }
+  }
 
   // Global YouTube module configuration.
   $domain = variable_get('youtube_privacy', FALSE) ? 'youtube-nocookie.com' : 'youtube.com';
