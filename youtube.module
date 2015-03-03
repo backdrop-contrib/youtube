@@ -397,7 +397,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
         $element[$delta] = array(
           '#theme' => 'youtube_video',
           '#video_id' => $item['video_id'],
-          '#entity_title' => $entity->title,
+          '#entity_title' => !empty($entity->title) ? check_plain($entity->title) : NULL,
           '#size' => array_key_exists('youtube_size', $display['settings']) ? $display['settings']['youtube_size']: NULL,
           '#width' => array_key_exists('youtube_width', $display['settings']) ? $display['settings']['youtube_width'] : NULL,
           '#height' => array_key_exists('youtube_height', $display['settings']) ? $display['settings']['youtube_height'] : NULL,
@@ -451,7 +451,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
         $element[$delta] = array(
           '#theme' => 'youtube_thumbnail',
           '#video_id' => $item['video_id'],
-          '#entity_title' => $entity->title,
+          '#entity_title' => !empty($entity->title) ? check_plain($entity->title) : NULL,
           '#image_style' => $display['settings']['image_style'],
           '#image_link' => isset($uri) ? $uri : '',
         );

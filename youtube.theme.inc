@@ -76,9 +76,12 @@ function theme_youtube_video($variables) {
   $path = 'https://www.' . $domain . '/embed/' . $id;
   $src = url($path, array('query' => $query));
 
-  $player_title = t('Embedded video for @entity_title', array(
-    '@entity_title' => $variables['entity_title'],
-  ));
+  $player_title = t('Embedded video');
+  if (!empty($variables['entity_title'])) {
+    $player_title .= t(' for @entity_title', array(
+      '@entity_title' => $variables['entity_title'],
+    ));
+  }
 
   $output = '<iframe id="' . drupal_html_id($player_class) . '" class="' . $player_class . '"
     width="' . $dimensions['width'] . '" height="' . $dimensions['height'] . '"
@@ -118,9 +121,12 @@ function theme_youtube_thumbnail($variables) {
     }
   }
 
-  $alt = t('Embedded thumbnail for @entity_title', array(
-    '@entity_title' => $variables['entity_title'],
-  ));
+  $alt = t('Embedded thumbnail');
+  if (!empty($variables['entity_title'])) {
+    $alt .= t(' for @entity_title', array(
+      '@entity_title' => $variables['entity_title'],
+    ));
+  }
 
   if ($style) {
     $uri = 'public://' . $youtube . '/' . $id . '.png';
