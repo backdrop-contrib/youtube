@@ -217,6 +217,7 @@ function youtube_field_formatter_info() {
         'youtube_width' => NULL,
         'youtube_height' => NULL,
         'youtube_autoplay' => FALSE,
+        'youtube_loop' => FALSE,
         'youtube_showinfo' => FALSE,
         'youtube_controls' => FALSE,
         'youtube_autohide' => FALSE,
@@ -277,6 +278,11 @@ function youtube_field_formatter_settings_form($field, $instance, $view_mode, $f
       '#type' => 'checkbox',
       '#title' => t('Play video automatically when loaded (autoplay).'),
       '#default_value' => $settings['youtube_autoplay'],
+    );
+    $element['youtube_loop'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Loop the playback of the video (loop).'),
+      '#default_value' => $settings['youtube_loop'],
     );
     $element['youtube_showinfo'] = array(
       '#type' => 'checkbox',
@@ -347,6 +353,7 @@ function youtube_field_formatter_settings_summary($field, $instance, $view_mode)
 
     $parameters = array(
       $settings['youtube_autoplay'],
+      $settings['youtube_loop'],
       $settings['youtube_showinfo'],
       $settings['youtube_controls'],
       $settings['youtube_autohide'],
@@ -402,6 +409,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
           '#width' => array_key_exists('youtube_width', $display['settings']) ? $display['settings']['youtube_width'] : NULL,
           '#height' => array_key_exists('youtube_height', $display['settings']) ? $display['settings']['youtube_height'] : NULL,
           '#autoplay' => array_key_exists('youtube_autoplay', $display['settings']) ? $display['settings']['youtube_autoplay'] : FALSE,
+          '#loop' => array_key_exists('youtube_loop', $display['settings']) ? $display['settings']['youtube_loop'] : FALSE,
           '#showinfo' => array_key_exists('youtube_showinfo', $display['settings']) ? $display['settings']['youtube_showinfo'] : FALSE,
           '#controls' => array_key_exists('youtube_controls', $display['settings']) ? $display['settings']['youtube_controls'] : FALSE,
           '#autohide' => array_key_exists('youtube_autohide', $display['settings']) ? $display['settings']['youtube_autohide'] : FALSE,
@@ -558,6 +566,7 @@ function youtube_theme($existing, $type, $theme, $path) {
         'width' => NULL,
         'height' => NULL,
         'autoplay' => FALSE,
+        'loop' => FALSE,
         'showinfo' => FALSE,
         'controls' => FALSE,
         'autohide' => FALSE,
