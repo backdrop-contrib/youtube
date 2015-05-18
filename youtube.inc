@@ -101,7 +101,6 @@ function youtube_get_remote_image($id = NULL, $force_small = FALSE) {
   $youtube_thumb_hires = variable_get('youtube_thumb_hires', FALSE);
 
   if ($youtube_thumb_hires && !$force_small) {
-    // Again, the high resolution image is not available via JSON-C API.
     $src = youtube_build_remote_image_path($id, 'maxresdefault');
   }
   else {
