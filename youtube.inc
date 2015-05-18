@@ -105,21 +105,7 @@ function youtube_get_remote_image($id = NULL, $force_small = FALSE) {
     $src = youtube_build_remote_image_path($id, 'maxresdefault');
   }
   else {
-    $path = 'http://gdata.youtube.com/feeds/api/videos/' . $id;
-    $query = array(
-      'v' => '2', 
-      'alt' => 'jsonc'
-    );
-    $url = url($path, array('query' => $query));
-    $result = drupal_http_request($url);
-    $data = json_decode($result->data);
-    // Get the high quality default thumbnail.
-    if (!empty($data->data)) {
-      $src = $data->data->thumbnail->hqDefault;
-    }
-    else {
-      $src = youtube_build_remote_image_path($id);
-    }
+    $src = youtube_build_remote_image_path($id);
   }
 
   // Make the actual request to download the file.
