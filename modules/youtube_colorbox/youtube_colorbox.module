@@ -93,6 +93,12 @@ function youtube_colorbox_thumbnail_field_formatter_settings(&$element, $instanc
     '#default_value' => $colorbox['parameters']['autoplay'],
     '#return_value' => 1,
   );
+  $element['colorbox']['parameters']['loop'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Loop the playback of the video (loop).'),
+    '#default_value' => $colorbox['parameters']['loop'],
+    '#return_value' => 1,
+  );
   $element['colorbox']['parameters']['showinfo'] = array(
     '#type' => 'checkbox',
     '#title' => t('Hide video title and uploader info (showinfo).'),
