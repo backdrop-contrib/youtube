@@ -26,7 +26,7 @@ function youtube_colorbox_form_youtube_settings_form_alter(&$form, &$form_state)
   if (!variable_get('colorbox_load', FALSE)) {
     $args = array('!colorbox_settings' => l('Colorbox module settings', 'admin/config/media/colorbox'));
     $message = t('Please enable \'Enable Colorbox load\' in the !colorbox_settings for thumbnails linked by YouTube Field Colorbox to work as expected.', $args);
-    drupal_set_message($message, 'warning');
+    backdrop_set_message($message, 'warning');
   }
 }
 
@@ -161,26 +161,27 @@ function youtube_colorbox_field_item_uri($item, $settings) {
   }
 
   // Global YouTube module configuration.
-  $domain = variable_get('youtube_privacy', FALSE) ? 'youtube-nocookie.com' : 'youtube.com';
-  $player_class = variable_get('youtube_player_class', 'youtube-field-player');
-  if (!variable_get('youtube_suggest', TRUE)) {
+  $config = config('youtube.settings')
+  $domain = $config->get('privacy') ? 'youtube-nocookie.com' : 'youtube.com';
+  $player_class = $config->get('player_class');
+  if (!$config->get('suggest')) {
     $parameters['rel'] = '0';
   }
-  if (variable_get('youtube_modestbranding', FALSE)) {
+  if ($config->get('modestbranding')) {
     $parameters['modestbranding'] = '1';
   }
-  if (variable_get('youtube_theme', FALSE)) {
+  if ($config->get('theme')) {
     $parameters['theme'] = 'light';
   }
-  if (variable_get('youtube_color', FALSE)) {
+  if ($config->get('color')) {
     $parameters['color'] = 'white';
   }
-  if (variable_get('youtube_enablejsapi', FALSE)) {
+  if ($config->get('enablejsapi')) {
     global $base_url;
     $parameters['enablejsapi'] = '1';
     $parameters['origin'] = $base_url;
   }
-  if (variable_get('youtube_wmode', TRUE)) {
+  if ($config->get('wmode')) {
     $parameters['wmode'] = 'opaque';
   }
 
@@ -189,7 +190,7 @@ function youtube_colorbox_field_item_uri($item, $settings) {
     'options' => array(
       'attributes' => array(
         'class' => array('colorbox-load', $player_class),
-        'id' => drupal_html_id($player_class),
+        'id' => backdrop_html_id($player_class),
       ),
       'html' => TRUE,
       'external' => TRUE,

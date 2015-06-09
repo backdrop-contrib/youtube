@@ -22,15 +22,15 @@ function theme_youtube_video($variables) {
   $iv_load_policy = array_key_exists('iv_load_policy', $variables) ? $variables['iv_load_policy'] : FALSE;
 
   // Get YouTube settings.
-  $suggest = variable_get('youtube_suggest', TRUE);
-  $privacy = variable_get('youtube_privacy', FALSE);
-  $modestbranding = variable_get('youtube_modestbranding', FALSE);
-  $theme = variable_get('youtube_theme', FALSE);
-  $color = variable_get('youtube_color', FALSE);
-  $enablejsapi = variable_get('youtube_enablejsapi', FALSE);
-  $player_class = variable_get('youtube_player_class', 'youtube-field-player');
-  $wmode = variable_get('youtube_wmode', TRUE);
-  $privacy = variable_get('youtube_privacy', FALSE);
+  $suggest = config_get('youtube.settings', 'youtube_suggest');
+  $privacy = config_get('youtube.settings', 'youtube_privacy');
+  $modestbranding = config_get('youtube.settings', 'youtube_modestbranding');
+  $theme = config_get('youtube.settings', 'youtube_theme');
+  $color = config_get('youtube.settings', 'youtube_color');
+  $enablejsapi = config_get('youtube.settings', 'youtube_enablejsapi');
+  $player_class = config_get('youtube.settings', 'youtube_player_class');
+  $wmode = config_get('youtube.settings', 'youtube_wmode');
+  $privacy = config_get('youtube.settings', 'youtube_privacy');
   $dimensions = youtube_get_dimensions($size, $width, $height);
 
   // Query string changes based on setings.
@@ -88,7 +88,7 @@ function theme_youtube_video($variables) {
     ));
   }
 
-  $output = '<iframe id="' . drupal_html_id($player_class) . '" class="' . $player_class . '"
+  $output = '<iframe id="' . backdrop_html_id($player_class) . '" class="' . $player_class . '"
     width="' . $dimensions['width'] . '" height="' . $dimensions['height'] . '"
     src="' . $src . '" title="' . $player_title . '" frameborder="0"
     allowfullscreen></iframe>';
@@ -112,8 +112,8 @@ function theme_youtube_thumbnail($variables) {
   $size = variable_get('youtube_size', '420x315');
   $dimensions = youtube_get_dimensions($size);
 
-  $files = variable_get('file_public_path', conf_path() . '/files');
-  $youtube = variable_get('youtube_thumb_dir', 'youtube');
+  $files = config_get('system.core', 'file_public_path');
+  $youtube = config_get('youtube.settings', 'youtube_thumb_dir');
   $dest = $files . '/' . $youtube . '/' . $id . '.png';
 
   // Check to see if a thumbnail exists locally.

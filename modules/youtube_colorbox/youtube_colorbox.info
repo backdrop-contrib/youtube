@@ -1,6 +1,8 @@
 name = YouTube Field Colorbox
 description = Provides Colorbox support to YouTube Field thumbnail display settings.
 package = Fields
-core = 7.x
+type = module
+version = BACKDROP_VERSION
+backdrop = 1.x
 dependencies[] = colorbox
 dependencies[] = youtube
