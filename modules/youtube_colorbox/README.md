@@ -7,19 +7,19 @@ player within a Colorbox modal window. Display settings can alter the Colorbox
 size and other parameter options.
 
 
-REQUIREMENTS
+Requirements
 -------------
  - YouTube Field
  - Colorbox
 
 
-INSTALLATION
--------------
-Install this module as usual. Please see
-http://drupal.org/documentation/install/modules-themes/modules-7
+Installation
+------------
+Install this module using the official Backdrop CMS instructions at
+https://backdropcms.org/guide/modules
 
 
-USAGE
+Usage
 ------
 To use this module:
  1. The Colorbox plugin must be properly included. The status of this can be
@@ -28,7 +28,7 @@ To use this module:
     setting is found at admin/config/media/colorbox.
 
 
-CONFIGURATION
+Configuration
 --------------
 There are no global module settings.
 
@@ -40,7 +40,21 @@ Once enabled, to use and configure this module:
  5. Alter the parameters and other settings available when 'Colorbox' is chosen.
 
 
-SUPPORT
---------
-Please use the issue queue to report bugs or request support:
-http://drupal.org/project/issues/youtube
+License
+-------
+
+This project is GPL v2 software. See the LICENSE.txt file in this directory for
+complete text.
+
+
+Current Maintainers
+-------------------
+
+- Paul Davis (https://github.com/hellomrcat/)
+
+
+Credits
+-------
+
+This module was originally written for Drupal by Jen Lampton
+(https://github.com/jenlampton).

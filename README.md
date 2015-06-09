@@ -9,18 +9,18 @@ Display types include:
  * YouTube thumbnails with image styles.
 
 
-REQUIREMENTS
+Requirements
 -------------
-All dependencies of this module are enabled by default in Drupal 7.x.
+All dependencies of this module are enabled by default in Backdrop 1.x.
 
 
-INSTALLATION
--------------
-Install this module as usual. Please see
-http://drupal.org/documentation/install/modules-themes/modules-7
+Installation
+------------
+Install this module using the official Backdrop CMS instructions at
+https://backdropcms.org/guide/modules
 
 
-USAGE
+Usage
 -------
 To use this module create a new field of type 'YouTube video'. This field will
 accept YouTube URLs of the following formats:
@@ -39,7 +39,7 @@ To enable Colorbox support, enable the YouTube Field Colorbox module included in
 this directory and consult its README file.
 
 
-CONFIGURATION
+Configuration
 --------------
 Global module settings can be found at admin/config/media/youtube.
 
@@ -57,7 +57,21 @@ To configure the field settings:
  2. click the configuration gear to the right of the YouTube field
 
 
-SUPPORT
---------
-Please use the issue queue to report bugs or request support:
-http://drupal.org/project/issues/youtube
+License
+-------
+
+This project is GPL v2 software. See the LICENSE.txt file in this directory for
+complete text.
+
+
+Current Maintainers
+-------------------
+
+- Paul Davis (https://github.com/hellomrcat/)
+
+
+Credits
+-------
+
+This module was originally written for Drupal by Jen Lampton
+(https://github.com/jenlampton).

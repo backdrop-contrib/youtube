@@ -13,7 +13,7 @@ function youtube_menu() {
   $items['admin/config/media/youtube'] = array(
     'title' => 'YouTube settings',
     'description' => 'Configure sitewide settings for embedded YouTube video fields.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('youtube_settings_form'),
     'access arguments' => array('administer youtube'),
     'type' => MENU_NORMAL_ITEM,
@@ -52,35 +52,35 @@ function youtube_settings_form($form) {
   $form['youtube_global']['youtube_suggest'] = array(
     '#type' => 'checkbox',
     '#title' => t('Show suggested videos when the video finishes (rel).'),
-    '#default_value' => variable_get('youtube_suggest', TRUE),
+    '#default_value' => config_get('youtube.settings', 'youtube_suggest'),
   );
   $form['youtube_global']['youtube_modestbranding'] = array(
     '#type' => 'checkbox',
     '#title' => t('Do not show YouTube logo on video player (modestbranding).'),
-    '#default_value' => variable_get('youtube_modestbranding', FALSE),
+    '#default_value' => config_get('youtube.settings', 'youtube_modestbranding'),
   );
   $form['youtube_global']['youtube_theme'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use a light colored control bar for video player controls (theme).'),
-    '#default_value' => variable_get('youtube_theme', FALSE),
+    '#default_value' => config_get('youtube.settings', 'youtube_theme'),
   );
   $form['youtube_global']['youtube_color'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use a white colored video progress bar (color).'),
-    '#default_value' => variable_get('youtube_color', FALSE),
+    '#default_value' => config_get('youtube.settings', 'youtube_color'),
     '#description' => 'Note: the modestbranding parameter will be ignored when this is in use.',
   );
   $form['youtube_global']['youtube_enablejsapi'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable use of the JavaScript API (enablejsapi, origin).'),
-    '#default_value' => variable_get('youtube_enablejsapi', FALSE),
+    '#default_value' => config_get('youtube.settings', 'youtube_enablejsapi'),
     '#description' => 'For more information on the Javascript API and how to use it, see the <a href="https://developers.google.com/youtube/js_api_reference">JavaScript API documentation</a>.',
   );
   $form['youtube_global']['youtube_wmode'] = array(
     '#type' => 'checkbox',
     '#title' => t('Fix overlay problem in IE (wmode).'),
-    '#default_value' => variable_get('youtube_wmode', TRUE),
-    '#description' => t('Checking this will fix the issue of a YouTube video showing above elements with fixed or absolute positioning (including Drupal\'s Overlay and Toolbar).'),
+    '#default_value' => config_get('youtube.settings', 'youtube_wmode'),
+    '#description' => t('Checking this will fix the issue of a YouTube video showing above elements with fixed or absolute positioning (including Backdrop\'s Overlay and Toolbar).'),
   );
   $form['youtube_thumbs'] = array(
     '#type' => 'fieldset',
@@ -89,16 +89,16 @@ function youtube_settings_form($form) {
   $form['youtube_thumbs']['youtube_thumb_dir'] = array(
     '#type' => 'textfield',
     '#title' => t('YouTube thumbnail directory'),
-    '#field_prefix' => variable_get('file_public_path', conf_path() . '/files') . '/',
+    '#field_prefix' => config_get('system.core', 'file_public_path') . '/',
     '#field_suffix' => '/thumbnail.png',
     '#description' => t('Location, within the files directory, where you would like the YouTube thumbnails stored.'),
-    '#default_value' => variable_get('youtube_thumb_dir', 'youtube'),
+    '#default_value' => config_get('youtube.settings', 'youtube_thumb_dir'),
   );
   $form['youtube_thumbs']['youtube_thumb_hires'] = array(
     '#type' => 'checkbox',
     '#title' => t('Save higher resolution thumbnail images'),
     '#description' => t('This will save thumbnails larger than the default size, 480x360, to the thumbnails directory specified above.'),
-    '#default_value' => variable_get('youtube_thumb_hires', FALSE),
+    '#default_value' => config_get('youtube.settings', 'youtube_thumb_hires'),
   );
   $form['youtube_thumbs']['youtube_thumb_delete_all'] = array(
     '#type' => 'submit',
@@ -108,17 +108,43 @@ function youtube_settings_form($form) {
   $form['youtube_privacy'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable privacy-enhanced mode.'),
-    '#default_value' => variable_get('youtube_privacy', FALSE),
+    '#default_value' => config_get('youtube.settings', 'youtube_privacy'),
     '#description' => t('Checking this box will prevent YouTube from setting cookies in your site visitors browser.'),
   );
   $form['youtube_player_class'] = array(
     '#type' => 'textfield',
     '#title' => t('YouTube player class'),
-    '#default_value' => variable_get('youtube_player_class', 'youtube-field-player'),
+    '#default_value' => config_get('youtube.settings', 'youtube_player_class'),
     '#description' => t('The iframe of every player will be given this class. They will also be given IDs based off of this value.'),
   );
+  // Add a submit button
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
 
-  return system_settings_form($form);
+  return $form;
+}
+
+/**
+ * Submit handler for youtube_settings_form().
+ */
+function youtube_settings_form_submit($form, &$form_state) {
+  $config = config('youtube.settings');
+  $values = $form_state['values'];
+  $config->set('suggest', (bool)$values['suggest']);
+  $config->set('modestbranding', (bool)$values['modestbranding']);
+  $config->set('theme', (bool)$values['theme']);
+  $config->set('color', (bool)$values['color']);
+  $config->set('enablejsapi', (bool)$values['enablejsapi']);
+  $config->set('wmode', (bool)$values['wmode']);
+  $config->set('thumb_dir', $values['thumb_dir']);
+  $config->set('thumb_hires', (bool)$values['thumb_hires']);
+  $config->set('player_class', $values['player_class']);
+  $config->set('privacy', (bool)$values['privacy']);
+  $config->save();
+  backdrop_set_message(t('The configuration options have been saved.'));
 }
 
 /**
@@ -545,7 +571,27 @@ function youtube_field_widget_error($element, $error, $form, &$form_state) {
 }
 
 /**
- * Implements of hook_theme().
+ * Implements hook_autoload_info().
+ */
+function youtube_autoload_info() {
+  return array(
+    'MigrateYoutubeFieldHandler' => 'youtube.migrate.inc',
+  );
+}
+
+/**
+ * Implements hook_config_info().
+ */
+function youtube_config_info() {
+  $prefixes['youtube.settings'] = array(
+    'label' => t('Youtube settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
+ * Implements hook_theme().
  */
 function youtube_theme($existing, $type, $theme, $path) {
   return array(

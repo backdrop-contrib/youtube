@@ -1,10 +1,11 @@
 name = YouTube Field
 description = Provides a YouTube widget for fields.
 package = Fields
-core = 7.x
+type = module
+version = BACKDROP_VERSION
+backdrop = 1.x
 dependencies[] = field
 dependencies[] = image
 dependencies[] = file
-files[] = youtube.migrate.inc
 stylesheets[all][] = css/youtube.css
 configure = admin/config/media/youtube

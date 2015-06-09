@@ -90,7 +90,7 @@ function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
  *   The video_id of the particular YouTube video.
  * @param $force_small
  *   When TRUE, this function should return the standard size image regardless
- *   of what the youtube_thumb_hires variable is set to. This is used should
+ *   of what the thumb_hires variable is set to. This is used should
  *   the high resolution image be found to not exist for a particular video.
  */
 function youtube_get_remote_image($id = NULL, $force_small = FALSE) {
@@ -98,7 +98,7 @@ function youtube_get_remote_image($id = NULL, $force_small = FALSE) {
   // The only thumbnail resolution higher than the standard 480 is
   // 'maxresdefault'. This resolution image is not guaranteed to exist. After
   // saving the file, we check to ensure that it does.
-  $youtube_thumb_hires = variable_get('youtube_thumb_hires', FALSE);
+  $youtube_thumb_hires = config_get('youtube.settings', 'youtube_thumb_hires');
 
   if ($youtube_thumb_hires && !$force_small) {
     $src = youtube_build_remote_image_path($id, 'maxresdefault');
@@ -108,11 +108,11 @@ function youtube_get_remote_image($id = NULL, $force_small = FALSE) {
   }
 
   // Make the actual request to download the file.
-  $image_result = drupal_http_request($src);
+  $image_result = backdrop_http_request($src);
 
   // Assure the youtube thumbnail directory exists.
-  $files = variable_get('file_public_path', conf_path() . '/files');
-  $youtube_dir = variable_get('youtube_thumb_dir', 'youtube');
+  $files = config_get('system.core', 'file_public_path');
+  $youtube_dir = config_get('youtube.settings', 'youtube_thumb_dir');
   $youtube_path = $files . '/' . $youtube_dir;
   if (!file_prepare_directory($youtube_path, FILE_CREATE_DIRECTORY) && !mkdir($youtube_path, 0775, TRUE)) {
     watchdog('youtube', 'Failed to create YouTube thumbnail directory: %dir', array('%dir' => $youtube_path), WATCHDOG_ERROR);
@@ -146,8 +146,8 @@ function youtube_get_remote_image($id = NULL, $force_small = FALSE) {
  * @see youtube_settings_form()
  */
 function youtube_thumb_delete_all($form, &$form_state) {
-  $files = variable_get('file_public_path', conf_path() . '/files');
-  $youtube_dir = variable_get('youtube_thumb_dir', 'youtube');
+  $files = config_get('system.core', 'file_public_path');;
+  $youtube_dir = config_get('youtube.settings', 'youtube_thumb_dir');
   $youtube_path = $files . '/' . $youtube_dir;
 
   $imagestyleflush = t('Derivatives generated with image styles were not
@@ -155,13 +155,13 @@ function youtube_thumb_delete_all($form, &$form_state) {
     array('@imagestyleflush' => 'https://www.drupal.org/project/imagestyleflush'));
 
   if (file_prepare_directory($youtube_path) && file_unmanaged_delete_recursive($youtube_path)) {
-    drupal_set_message(t('All YouTube Field thumbnail image files have been
+    backdrop_set_message(t('All YouTube Field thumbnail image files have been
       deleted and will be redownloaded upon the next page load.'));
-    drupal_set_message($imagestyleflush);
+    backdrop_set_message($imagestyleflush);
   }
   else {
-    drupal_set_message(t('There were no thumbnails to delete.'), 'warning');
-    drupal_set_message($imagestyleflush, 'warning');
+    backdrop_set_message(t('There were no thumbnails to delete.'), 'warning');
+    backdrop_set_message($imagestyleflush, 'warning');
   }
 }
 
@@ -393,8 +393,8 @@ function youtube_tokens($type, $tokens, array $data = array(), array $options = 
           global $base_path;
           $field = $node->$field_name;
           $video_id = $field[LANGUAGE_NONE][0]['video_id'];
-          $file_path = variable_get('file_public_path', conf_path() . '/files') . '/';
-          $file_path .= variable_get('youtube_thumb_dir', 'youtube');
+          $file_path = config_get('system.core', 'file_public_path') . '/';
+          $file_path .= config_get('youtube.settings', 'youtube_thumb_dir');
           $file_path .= '/' . $video_id . '.png';
           $full_path = $base_url . $base_path . $file_path;
           if (!file_exists($full_path)) {

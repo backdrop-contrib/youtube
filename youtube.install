@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Install, update, and uninstall functions for the youtube module.
+ * Install and update functions for the youtube module.
  */
 
 /**
@@ -30,30 +30,38 @@ function youtube_field_schema($field) {
 }
 
 /**
- * Implements hook_uninstall().
+ * Moves Youtube Field settings from variable to config.
  */
-function youtube_uninstall() {
-  // Delete youtube variables when module is removed.
-  variable_del('youtube_suggest');
-  variable_del('youtube_modestbranding');
-  variable_del('youtube_theme');
-  variable_del('youtube_color');
-  variable_del('youtube_enablejsapi');
-  variable_del('youtube_player_class');
-  variable_del('youtube_privacy');
-  variable_del('youtube_thumb_dir');
-  variable_del('youtube_thumb_hires');
-  variable_del('youtube_wmode');
+function youtube_update_1000() {
+  // Migrate variables if any.
+  $config = config('youtube.settings');
+  $config->set('youtube_suggest', update_variable_get('youtube_suggest', true));
+  $config->set('youtube_modestbranding', update_variable_get('youtube_modestbranding', true));
+  $config->set('youtube_theme', update_variable_get('youtube_theme', false));
+  $config->set('youtube_color', update_variable_get('youtube_color', false));
+  $config->set('youtube_enablejsapi', update_variable_get('youtube_enablejsapi', false));
+  $config->set('youtube_player_class', update_variable_get('youtube_player_class', "youtube-field-player"));
+  $config->set('youtube_privacy', update_variable_get('youtube_privacy', false));
+  $config->set('youtube_thumb_dir', update_variable_get('youtube_thumb_dir', "youtube"));
+  $config->set('youtube_thumb_hires', update_variable_get('youtube_thumb_hires', false));
+  $config->set('youtube_wmode', update_variable_get('youtube_wmode', true));
+  $config->save();
+  // Delete the migrated variables.
+  update_variable_del('youtube_suggest');
+  update_variable_del('youtube_modestbranding');
+  update_variable_del('youtube_theme');
+  update_variable_del('youtube_color');
+  update_variable_del('youtube_enablejsapi');
+  update_variable_del('youtube_player_class');
+  update_variable_del('youtube_privacy');
+  update_variable_del('youtube_thumb_dir');
+  update_variable_del('youtube_thumb_hires');
+  update_variable_del('youtube_wmode');
 }
 
 /**
- * Replace the youtube_playerid setting variable with youtube_player_class. This
- * is needed to fix issue of duplicate player IDs on the same page.
+ * Implements hook_update_last_removed().
  */
-function youtube_update_7103() {
-  $legacy_player_id = variable_get('youtube_playerid');
-  if ($legacy_player_id) {
-    variable_set('youtube_player_class', $legacy_player_id);
-  }
-  variable_del('youtube_playerid');
+function youtube_update_last_removed() {
+  return 7103;
 }
