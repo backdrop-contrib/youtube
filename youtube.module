@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Youtube field module adds a field for YouTube videos.
@@ -89,6 +88,7 @@ function youtube_settings_form($form) {
   $form['youtube_thumbs']['youtube_thumb_dir'] = array(
     '#type' => 'textfield',
     '#title' => t('YouTube thumbnail directory'),
+    '#size' => 12,
     '#field_prefix' => config_get('system.core', 'file_public_path') . '/',
     '#field_suffix' => '/thumbnail.png',
     '#description' => t('Location, within the files directory, where you would like the YouTube thumbnails stored.'),
@@ -133,16 +133,16 @@ function youtube_settings_form($form) {
 function youtube_settings_form_submit($form, &$form_state) {
   $config = config('youtube.settings');
   $values = $form_state['values'];
-  $config->set('suggest', (bool)$values['suggest']);
-  $config->set('modestbranding', (bool)$values['modestbranding']);
-  $config->set('theme', (bool)$values['theme']);
-  $config->set('color', (bool)$values['color']);
-  $config->set('enablejsapi', (bool)$values['enablejsapi']);
-  $config->set('wmode', (bool)$values['wmode']);
-  $config->set('thumb_dir', $values['thumb_dir']);
-  $config->set('thumb_hires', (bool)$values['thumb_hires']);
-  $config->set('player_class', $values['player_class']);
-  $config->set('privacy', (bool)$values['privacy']);
+  $config->set('youtube_suggest', (bool)$values['youtube_suggest']);
+  $config->set('youtube_modestbranding', (bool)$values['youtube_modestbranding']);
+  $config->set('youtube_theme', (bool)$values['youtube_theme']);
+  $config->set('youtube_color', (bool)$values['youtube_color']);
+  $config->set('youtube_enablejsapi', (bool)$values['youtube_enablejsapi']);
+  $config->set('youtube_wmode', (bool)$values['youtube_wmode']);
+  $config->set('youtube_thumb_dir', $values['youtube_thumb_dir']);
+  $config->set('youtube_thumb_hires', (bool)$values['youtube_thumb_hires']);
+  $config->set('youtube_player_class', $values['youtube_player_class']);
+  $config->set('youtube_privacy', (bool)$values['youtube_privacy']);
   $config->save();
   backdrop_set_message(t('The configuration options have been saved.'));
 }
