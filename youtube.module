@@ -78,9 +78,9 @@ function youtube_settings_form($form) {
   );
   $form['youtube_global']['youtube_wmode'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Fix overlay problem in IE (wmode).'),
+    '#title' => t('Fix positioning problem in IE (wmode).'),
     '#default_value' => config_get('youtube.settings', 'youtube_wmode'),
-    '#description' => t('Checking this will fix the issue of a YouTube video showing above elements with fixed or absolute positioning (including Backdrop\'s Overlay and Toolbar).'),
+    '#description' => t('Checking this will fix the issue of a YouTube video showing above elements with fixed or absolute positioning.'),
   );
   $form['youtube_thumbs'] = array(
     '#type' => 'fieldset',
