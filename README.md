@@ -67,7 +67,8 @@ complete text.
 Current Maintainers
 -------------------
 
-- Paul Davis (https://github.com/hellomrcat/)
+- Paul Davis (https://github.com/hellomrcat)
+- Jen Lampton (https://github.com/jenlampton)
 
 
 Credits
