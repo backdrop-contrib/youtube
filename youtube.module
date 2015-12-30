@@ -285,7 +285,8 @@ function youtube_field_formatter_settings_form($field, $instance, $view_mode, $f
       '#default_value' => $settings['youtube_width'],
       '#states' => array(
         'visible' => array(
-          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][youtube_size]"]' => array('value' => 'custom'),
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][youtube_size]"],
+          :input[name="options[settings][youtube_size]"]' => array('value' => 'custom'),
         ),
       ),
     );
@@ -296,7 +297,8 @@ function youtube_field_formatter_settings_form($field, $instance, $view_mode, $f
       '#default_value' => $settings['youtube_height'],
       '#states' => array(
         'visible' => array(
-          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][youtube_size]"]' => array('value' => 'custom'),
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][youtube_size]"],
+          :input[name="options[settings][youtube_size]"]' => array('value' => 'custom'),
         ),
       ),
     );
