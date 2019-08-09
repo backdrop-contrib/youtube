@@ -161,7 +161,7 @@ function youtube_colorbox_field_item_uri($item, $settings) {
   }
 
   // Global YouTube module configuration.
-  $config = config('youtube.settings')
+  $config = config('youtube.settings');
   $domain = $config->get('privacy') ? 'youtube-nocookie.com' : 'youtube.com';
   $player_class = $config->get('player_class');
   if (!$config->get('suggest')) {
