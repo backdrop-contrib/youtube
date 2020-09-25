@@ -186,7 +186,7 @@ function youtube_colorbox_field_item_uri($item, $settings) {
   }
 
   $uri = array(
-    'path' => 'https://' . $domain . '/embed/' . $item['video_id'],
+    'path' => 'https://www.' . $domain . '/embed/' . $item['video_id'],
     'options' => array(
       'attributes' => array(
         'class' => array('colorbox-load', $player_class),
