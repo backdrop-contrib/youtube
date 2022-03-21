@@ -532,7 +532,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
             '#options' => array(
               'attributes' => array(
                 'class' => array('youtube-url'),
-                'id'    => drupal_html_class($item['video_id']),
+                'id'    => backdrop_html_class($item['video_id']),
               ),
               'html'       => TRUE,
             ),
