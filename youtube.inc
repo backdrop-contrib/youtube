@@ -26,6 +26,21 @@ function youtube_get_video_id($input) {
 }
 
 /**
+ * Extracts the start time from the submitted field value.
+ *
+ * @param string $input
+ *   The input submitted to the field.
+ *
+ * @return int
+ *   Returns the video start time if set, or '0' if not.
+ */
+function youtube_get_start_time($input) {
+  $url = backdrop_parse_url($input);
+  $time = isset($url['query']['t']) ? $url['query']['t'] : 0;
+  return $time;
+}
+
+/**
  * Returns a list of standard YouTube video sizes.
  */
 function youtube_size_options() {
