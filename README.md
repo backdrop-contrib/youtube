@@ -32,8 +32,9 @@ accept YouTube URLs of the following formats:
  * `https://youtube.com.live/[video_id]`
  * `https://youtube.com/?v=[video_id]`
 
-All formats listed above can also be provided without 'https://', with 'www.',
-or with 'http://' rather than 'https://'.
+All formats listed above can also be provided without `https://`, with `www.`,
+or with `http://` rather than `https://`. The last format can be provided with
+additional parameters (ignored) and `v` does not have to be the first parameter.
 
 To enable Colorbox support, enable the YouTube Field Colorbox module included in
 this directory and consult its README file.
