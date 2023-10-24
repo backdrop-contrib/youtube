@@ -1,4 +1,4 @@
-SUMMARY - YouTube Field
+YouTube Field
 ========================
 The YouTube field module provides a simple field that allows you to add a
 YouTube video to a content type, user, or any entity.
@@ -25,15 +25,15 @@ Usage
 To use this module create a new field of type 'YouTube video'. This field will
 accept YouTube URLs of the following formats:
 
- * http://youtube.com/watch?v=[video_id]
- * http://youtu.be/[video_id]
- * http://youtube.com/v/[video_id]
- * http://youtube.com/embed/[video_id]
- * http://youtube.com/?v=[video_id]
+ * `https://youtube.com/watch?v=[video_id]`
+ * `https://youtu.be/[video_id]`
+ * `https://youtube.com/v/[video_id]`
+ * `https://youtube.com/embed/[video_id]`
+ * `https://youtube.com.live/[video_id]`
+ * `https://youtube.com/?v=[video_id]`
 
-All formats listed above can also be provided without 'http://', with 'www.',
-or with 'https://' rather than 'http://'. The last format can be provided with
-additional parameters (ignored) and v does not have to be the first parameter.
+All formats listed above can also be provided without 'https://', with 'www.',
+or with 'http://' rather than 'https://'.
 
 To enable Colorbox support, enable the YouTube Field Colorbox module included in
 this directory and consult its README file.
