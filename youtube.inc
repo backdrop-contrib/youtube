@@ -150,8 +150,8 @@ function youtube_thumb_delete_all($form, &$form_state) {
   $youtube_path = $files . '/' . $youtube_dir;
 
   $imagestyleflush = t('Derivatives generated with image styles were not
-    deleted. <a href="@imagestyleflush">Image style flush</a> may help with that.',
-    array('@imagestyleflush' => 'https://www.drupal.org/project/imagestyleflush'));
+    deleted. The 'Image Styles Admin' submodule of the <a href="@image_effects">'Image Effects'</a> module may help with that.',
+    array('@image_effects' => 'https://backdropcms.org/project/image_effects'));
 
   if (file_prepare_directory($youtube_path) && file_unmanaged_delete_recursive($youtube_path)) {
     backdrop_set_message(t('All YouTube Field thumbnail image files have been
