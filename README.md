@@ -34,7 +34,7 @@ accept YouTube URLs of the following formats:
 
 All formats listed above can also be provided without `https://`, with `www.`,
 or with `http://` rather than `https://`. The last format can be provided with
-additional parameters (ignored) and `v` does not have to be the first parameter.
+additional parameters (ignored except for `t`) and `v` does not have to be the first parameter.
 
 All formats can be provided with the additional parameter of `t` which is start
 time in seconds. For example `https://youtube.com.live/[video_id]?t=120` or
