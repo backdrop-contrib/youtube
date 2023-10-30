@@ -164,8 +164,7 @@ function youtube_thumb_delete_all($form, &$form_state) {
   $youtube_dir = config_get('youtube.settings', 'youtube_thumb_dir');
   $youtube_path = $files . '/' . $youtube_dir;
 
-  $imagestyleflush = t('Derivatives generated with image styles were not
-    deleted. The 'Image Styles Admin' submodule of the <a href="@image_effects">'Image Effects'</a> module may help with that.',
+  $imagestyleflush = t("Derivatives generated with image styles were not deleted. The 'Image Styles Admin' submodule of the <a href='@image_effects'>'Image Effects'</a> module may help with that.",
     array('@image_effects' => 'https://backdropcms.org/project/image_effects'));
 
   if (file_prepare_directory($youtube_path) && file_unmanaged_delete_recursive($youtube_path)) {
