@@ -3,6 +3,7 @@
  * @file
  * Youtube field module adds a field for YouTube videos.
  */
+
 require_once (dirname(__FILE__) . '/youtube.inc');
 
 /**
@@ -117,7 +118,7 @@ function youtube_settings_form($form) {
     '#default_value' => config_get('youtube.settings', 'youtube_player_class'),
     '#description' => t('The iframe of every player will be given this class. They will also be given IDs based off of this value.'),
   );
-  // Add a submit button
+  // Add a submit button.
   $form['actions']['#type'] = 'actions';
   $form['actions']['submit'] = array(
     '#type' => 'submit',
@@ -133,16 +134,16 @@ function youtube_settings_form($form) {
 function youtube_settings_form_submit($form, &$form_state) {
   $config = config('youtube.settings');
   $values = $form_state['values'];
-  $config->set('youtube_suggest', (bool)$values['youtube_suggest']);
-  $config->set('youtube_modestbranding', (bool)$values['youtube_modestbranding']);
-  $config->set('youtube_theme', (bool)$values['youtube_theme']);
-  $config->set('youtube_color', (bool)$values['youtube_color']);
-  $config->set('youtube_enablejsapi', (bool)$values['youtube_enablejsapi']);
-  $config->set('youtube_wmode', (bool)$values['youtube_wmode']);
+  $config->set('youtube_suggest', (bool) $values['youtube_suggest']);
+  $config->set('youtube_modestbranding', (bool) $values['youtube_modestbranding']);
+  $config->set('youtube_theme', (bool) $values['youtube_theme']);
+  $config->set('youtube_color', (bool) $values['youtube_color']);
+  $config->set('youtube_enablejsapi', (bool) $values['youtube_enablejsapi']);
+  $config->set('youtube_wmode', (bool) $values['youtube_wmode']);
   $config->set('youtube_thumb_dir', $values['youtube_thumb_dir']);
-  $config->set('youtube_thumb_hires', (bool)$values['youtube_thumb_hires']);
+  $config->set('youtube_thumb_hires', (bool) $values['youtube_thumb_hires']);
   $config->set('youtube_player_class', $values['youtube_player_class']);
-  $config->set('youtube_privacy', (bool)$values['youtube_privacy']);
+  $config->set('youtube_privacy', (bool) $values['youtube_privacy']);
   $config->save();
   backdrop_set_message(t('The configuration options have been saved.'));
 }
@@ -167,7 +168,7 @@ function youtube_field_info() {
 /**
  * Callback to alter the property info of youtube fields.
  *
- * @see hook_field_info().
+ * @see hook_field_info()
  */
 function youtube_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
   $name = $field['field_name'];
@@ -233,8 +234,8 @@ function youtube_field_is_empty($item, $field) {
  * Implements hook_field_formatter_info().
  */
 function youtube_field_formatter_info() {
-  $formatters =  array(
-    // This formatter displays your youtube video.
+  $formatters = array(
+    // This formatter displays your YouTube video.
     'youtube_video' => array(
       'label' => t('YouTube video'),
       'field types' => array('youtube'),
@@ -462,7 +463,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
           '#video_id' => $item['video_id'],
           '#video_start_time' => youtube_get_start_time($item['input']),
           '#entity_title' => !empty($entity->title) ? check_plain($entity->title) : NULL,
-          '#size' => array_key_exists('youtube_size', $display['settings']) ? $display['settings']['youtube_size']: NULL,
+          '#size' => array_key_exists('youtube_size', $display['settings']) ? $display['settings']['youtube_size'] : NULL,
           '#width' => array_key_exists('youtube_width', $display['settings']) ? $display['settings']['youtube_width'] : NULL,
           '#height' => array_key_exists('youtube_height', $display['settings']) ? $display['settings']['youtube_height'] : NULL,
           '#autoplay' => array_key_exists('youtube_autoplay', $display['settings']) ? $display['settings']['youtube_autoplay'] : FALSE,
@@ -495,7 +496,8 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
       }
 
       foreach ($items as $delta => $item) {
-        // If the thumbnail is linked to it's youtube page, take the original url.
+        // If the thumbnail is linked to it's YouTube page, take the original
+        // url.
         if (!empty($link_youtube)) {
           $uri = array(
             'path' => $item['input'],
@@ -671,7 +673,7 @@ function youtube_theme($existing, $type, $theme, $path) {
         'video_id' => NULL,
         'entity_title' => NULL,
         'image_style' => NULL,
-        'image_link' => NULL
+        'image_link' => NULL,
       ),
       'file' => 'youtube.theme.inc',
     ),
