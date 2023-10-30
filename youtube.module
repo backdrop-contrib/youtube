@@ -586,7 +586,7 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
   // Add our own description if one is not provided by the UI.
   if ($element['#description'] == '') {
-    $element['input']['#description'] = t('Valid URL formats include: http://www.youtube.com/watch?v=1SqBdS0XkV4&t=120 and http://youtu.be/1SqBdS0XkV4');
+    $element['input']['#description'] = t('Valid URL formats include: https://www.youtube.com/watch?v=1SqBdS0XkV4&t=120, https://youtube.com/live/1SqBdS0XkV4 and https://youtu.be/1SqBdS0XkV4');
   }
 
   if (isset($items[$delta]['video_id'])) {
