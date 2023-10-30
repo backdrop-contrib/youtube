@@ -460,6 +460,7 @@ function youtube_field_formatter_view($entity_type, $entity, $field, $instance, 
         $element[$delta] = array(
           '#theme' => 'youtube_video',
           '#video_id' => $item['video_id'],
+          '#video_start_time' => youtube_get_start_time($item['input']),
           '#entity_title' => !empty($entity->title) ? check_plain($entity->title) : NULL,
           '#size' => array_key_exists('youtube_size', $display['settings']) ? $display['settings']['youtube_size']: NULL,
           '#width' => array_key_exists('youtube_width', $display['settings']) ? $display['settings']['youtube_width'] : NULL,
@@ -567,7 +568,13 @@ function youtube_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $value = isset($items[$delta]['input']) ? $items[$delta]['input'] : '';
+  if (isset($items[$delta]['input'])) {
+    $value = $items[$delta]['input'];
+    $start_time = youtube_get_start_time($value);
+  }
+  else {
+    $value = '';
+  }
 
   $element['input'] = $element + array(
     '#type' => 'textfield',
@@ -579,13 +586,24 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
   // Add our own description if one is not provided by the UI.
   if ($element['#description'] == '') {
-    $element['input']['#description'] = t('Valid URL formats include: http://www.youtube.com/watch?v=1SqBdS0XkV4 and http://youtu.be/1SqBdS0XkV4');
+    $element['input']['#description'] = t('Valid URL formats include: http://www.youtube.com/watch?v=1SqBdS0XkV4&t=120 and http://youtu.be/1SqBdS0XkV4');
   }
 
   if (isset($items[$delta]['video_id'])) {
     $element['video_id'] = array(
       '#prefix' => '<div class="youtube-video-id">',
       '#markup' => t('YouTube video ID: !video_id', array('!video_id' => $items[$delta]['video_id'])),
+      '#suffix' => '</div>',
+      '#weight' => 1,
+    );
+  }
+
+  if (isset($start_time)) {
+    $element['video_start_time'] = array(
+      '#prefix' => '<div class="youtube-video-start-time">',
+      '#markup' => t('YouTube video start time: !video_start_time', array(
+        '!video_start_time' => date("H:i:s", $start_time),
+      )),
       '#suffix' => '</div>',
       '#weight' => 1,
     );
@@ -660,6 +678,7 @@ function youtube_theme($existing, $type, $theme, $path) {
     'youtube_video' => array(
       'variables' => array(
         'video_id' => NULL,
+        'video_start_time' => NULL,
         'entity_title' => NULL,
         'size' => NULL,
         'width' => NULL,
