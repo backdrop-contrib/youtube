@@ -36,6 +36,10 @@ All formats listed above can also be provided without `https://`, with `www.`,
 or with `http://` rather than `https://`. The last format can be provided with
 additional parameters (ignored) and `v` does not have to be the first parameter.
 
+All formats can be provided with the additional parameter of `t` which is start
+time in seconds. For example `https://youtube.com.live/[video_id]?t=120` or
+`https://youtube.com/watch?v=[video_id]&t=120` to start the video 2 minutes in.
+
 To enable Colorbox support, enable the YouTube Field Colorbox module included in
 this directory and consult its README file.
 
@@ -71,6 +75,7 @@ Current Maintainers
 - Paul Davis (https://github.com/hellomrcat)
 - Jen Lampton (https://github.com/jenlampton)
 - Daniel Rose (https://github.com/danielrose28)
+- [Martin Price](https://github.com/yorkshire-pudding) - [System Horizons Ltd](https://www.systemhorizons.co.uk)
 
 
 Credits
