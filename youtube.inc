@@ -1,16 +1,16 @@
 <?php
 /**
- * @ file
+ * @file
  * YouTube field helper functions.
  */
 
 /**
  * Extracts the video_id from the submitted field value.
  *
- * @param $input
+ * @param string $input
  *   The input submitted to the field.
  *
- * @return
+ * @return string
  *   Returns the video_id if available, or FALSE if not.
  */
 function youtube_get_video_id($input) {
@@ -100,9 +100,9 @@ function youtube_get_dimensions($size = NULL, $width = NULL, $height = NULL) {
  *
  * TODO add error messaging if something goes wrong, and return FALSE.
  *
- * @param $id
+ * @param string $id
  *   The video_id of the particular YouTube video.
- * @param $force_small
+ * @param bool $force_small
  *   When TRUE, this function should return the standard size image regardless
  *   of what the thumb_hires variable is set to. This is used should
  *   the high resolution image be found to not exist for a particular video.
@@ -181,9 +181,9 @@ function youtube_thumb_delete_all($form, &$form_state) {
 /**
  * Get YouTube image path by building correctly formed URL.
  *
- * @param $video_id
+ * @param string $video_id
  *   The ID of the video to grab the thumbnail from.
- * @param  $version
+ * @param string $version
  *   Which version of the thumbnail to grab.
  * @return string
  *   The youtube.com image path to the specified version/video.
@@ -215,16 +215,16 @@ function youtube_build_remote_image_path($video_id = NULL, $version = '0') {
  *
  * Adds a target option for YouTube fields to Feeds mapping options.
  *
- * @param &$targets
+ * @param array &$targets
  *   Array containing the targets to be offered to the user. Add to this array
  *   to expose additional options. Remove from this array to suppress options.
  *   Remove with caution.
- * @param $entity_type
+ * @param string $entity_type
  *   The entity type of the target, for instance a 'node' entity.
- * @param $bundle_name
+ * @param string $bundle_name
  *   The bundle name for which to alter targets.
  */
-function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
+function youtube_feeds_processor_targets_alter(array &$targets, $entity_type, $bundle_name) {
   foreach (field_info_instances($entity_type, $bundle_name) as $name => $instance) {
     $info = field_info_field($name);
 
@@ -241,19 +241,19 @@ function youtube_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_
 /**
  * Callback to set the Feeds target for a YouTube field.
  *
- * @param $source
+ * @param FeedsSource $source
  *   Field mapper source settings.
- * @param $entity
+ * @param object $entity
  *   An entity object, for instance a node object.
- * @param $target
+ * @param string $target
  *   A string identifying the target on the node.
- * @param $value
+ * @param string $value
  *   The value to populate the target with.
- * @param $mapping
+ * @param array $mapping
  *   Associative array of the mapping settings from the per mapping
  *   configuration form.
  */
-function youtube_set_target($source, $entity, $target, $value, $mapping) {
+function youtube_set_target(FeedsSource $source, $entity, $target, $value, array $mapping) {
   if (empty($value)) {
     return;
   }

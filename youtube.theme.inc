@@ -150,7 +150,7 @@ function theme_youtube_thumbnail($variables) {
     $image = theme('image', array('uri' => $uri, 'alt' => $alt));
   }
 
-  // Check if an url path is provided
+  // Check if an url path is provided.
   if ($variables['image_link'] != NULL) {
     $url_path = $variables['image_link']['path'];
     $options = $variables['image_link']['options'];
