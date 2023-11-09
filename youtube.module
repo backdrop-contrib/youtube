@@ -600,7 +600,7 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     );
   }
 
-  if (isset($start_time)) {
+  if (isset($start_time) && $start_time > 0) {
     $element['video_start_time'] = array(
       '#prefix' => '<div class="youtube-video-start-time">',
       '#markup' => t('YouTube video start time: !video_start_time', array(
