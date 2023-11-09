@@ -74,7 +74,7 @@ class MigrateYoutubeFieldHandler extends MigrateFieldHandler {
    * @return array|null
    *   An array of YouTube fields.
    */
-  public function prepare($entity, array $field_info, array $instance, array $values) {
+  public function prepare(object $entity, array $field_info, array $instance, array $values) {
     if (isset($values['arguments'])) {
       $arguments = $values['arguments'];
       unset($values['arguments']);
