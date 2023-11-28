@@ -29,7 +29,7 @@ accept YouTube URLs of the following formats:
  * `https://youtu.be/[video_id]`
  * `https://youtube.com/v/[video_id]`
  * `https://youtube.com/embed/[video_id]`
- * `https://youtube.com.live/[video_id]`
+ * `https://youtube.com/live/[video_id]`
  * `https://youtube.com/?v=[video_id]`
 
 All formats listed above can also be provided without `https://`, with `www.`,
