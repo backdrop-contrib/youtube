@@ -37,6 +37,7 @@ function youtube_get_video_id($input) {
 function youtube_get_start_time($input) {
   $url = backdrop_parse_url($input);
   $time_query = isset($url['query']['t']) ? $url['query']['t'] : 0;
+  $time_query = intval(trim($time_query, 's'));
   $time = is_integer($time_query) ? $time_query : 0;
   return $time;
 }
