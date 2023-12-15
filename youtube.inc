@@ -37,7 +37,25 @@ function youtube_get_video_id($input) {
 function youtube_get_start_time($input) {
   $url = backdrop_parse_url($input);
   $time_query = isset($url['query']['t']) ? $url['query']['t'] : 0;
-  $time = is_numeric($time_query) ? intval($time_query) : 0;
+  if (is_numeric($time_query)) {
+    // If the time is expressed just in seconds, just set time directly.
+    $time = intval($time_query);
+  }
+  else {
+    // Define array to capture hours, minutes and seconds from query string.
+    $minutes = $seconds = $hours = array();
+    // Find any seconds.
+    preg_match("/(\d*)s/", $time_query, $seconds);
+    $seconds = !empty($seconds[1]) ? $seconds[1] : 0;
+    // Find any minutes.
+    preg_match("/(\d*)m/", $time_query, $minutes);
+    $minutes = !empty($minutes[1]) ? $minutes[1] : 0;
+    // Find any hours.
+    preg_match("/(\d*)h/", $time_query, $hours);
+    $hours = !empty($hours[1]) ? $hours[1] : 0;
+    // Add together to get full time in seconds.
+    $time = ($hours * 3600) + ($minutes * 60) + $seconds;
+  }
   return $time;
 }
 
