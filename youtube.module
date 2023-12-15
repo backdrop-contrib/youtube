@@ -588,7 +588,19 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
   // Add our own description if one is not provided by the UI.
   if ($element['#description'] == '') {
-    $element['input']['#description'] = t('Valid URL formats include: https://www.youtube.com/watch?v=1SqBdS0XkV4&t=120, https://youtube.com/live/1SqBdS0XkV4 and https://youtu.be/1SqBdS0XkV4&t=1h30m20s');
+    // Define example URLs.
+    $url_examples = array(
+      'https://www.youtube.com/watch?v=1SqBdS0XkV4&t=120',
+      'https://youtube.com/live/1SqBdS0XkV4',
+      'https://youtu.be/1SqBdS0XkV4&t=1h30m20s',
+    );
+    // Combine into an unordered (bullet points) list.
+    $url_list = '<ul>';
+    foreach ($url_examples as $url) {
+      $url_list .= "<li>$url</li>";
+    }
+    $url_list .= '</ul>';
+    $element['input']['#description'] = t('Valid URL formats include:') . $url_list;
   }
 
   if (isset($items[$delta]['video_id'])) {
@@ -601,10 +613,20 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
 
   }
   if (isset($start_time) && $start_time > 0) {
+    // Extract hours.
+    $hours = floor($start_time / (60 * 60));
+    // Extract minutes.
+    $divisor_for_minutes = $start_time % (60 * 60);
+    $minutes = floor($divisor_for_minutes / 60);
+    // Extract the remaining seconds.
+    $divisor_for_seconds = $divisor_for_minutes % 60;
+    $seconds = ceil($divisor_for_seconds);
+    // Compile to a string in the format hh:mm:ss.
+    $start_time_string = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
     $element['video_start_time'] = array(
       '#prefix' => '<div class="youtube-video-start-time">',
       '#markup' => t('YouTube video start time: !video_start_time', array(
-        '!video_start_time' => gmdate("H:i:s", $start_time),
+        '!video_start_time' => $start_time_string,
       )),
       '#suffix' => '</div>',
       '#weight' => 1,
@@ -614,10 +636,10 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
   // that values will be updated after the node is saved.
   if (isset($element['video_id'])) {
     if (isset($element['video_start_time'])) {
-      $explainer_text = t('Video ID and start time will reflect any changes in the URL after the node is saved.');
+      $explainer_text = t('Video ID and start time will reflect any changes in the URL after the form is saved.');
     }
     else {
-      $explainer_text = t('Video ID will reflect any changes in the URL after the node is saved.');
+      $explainer_text = t('Video ID will reflect any changes in the URL after the form is saved.');
     }
     $element['video_info_explainer'] = array(
       '#prefix' => '<div class="youtube-video-explainer">',
