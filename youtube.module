@@ -604,7 +604,7 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     $element['video_start_time'] = array(
       '#prefix' => '<div class="youtube-video-start-time">',
       '#markup' => t('YouTube video start time: !video_start_time', array(
-        '!video_start_time' => date("H:i:s", $start_time),
+        '!video_start_time' => gmdate("H:i:s", $start_time),
       )),
       '#suffix' => '</div>',
       '#weight' => 1,
