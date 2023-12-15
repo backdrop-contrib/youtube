@@ -39,10 +39,13 @@ additional parameters (ignored except for `t`) and `v` does not have to be the f
 All formats can be provided with the additional parameter of `t` which is start
 time in seconds. For example `https://youtube.com.live/[video_id]?t=120` or
 `https://youtube.com/watch?v=[video_id]&t=120` to start the video 2 minutes in.
+The time format can also be in the format of `1h10m30s` or any combination of
+hours (`h`), minutes (`m`) and seconds (`s`). For example,
+`https://youtu.be/[video_id]?t=1h45s` to start the video at time 01:00:45 from
+the beginning.
 
 To enable Colorbox support, enable the YouTube Field Colorbox module included in
 this directory and consult its README file.
-
 
 Configuration
 --------------
