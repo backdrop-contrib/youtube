@@ -598,8 +598,8 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
       '#suffix' => '</div>',
       '#weight' => 1,
     );
-  }
 
+  }
   if (isset($start_time) && $start_time > 0) {
     $element['video_start_time'] = array(
       '#prefix' => '<div class="youtube-video-start-time">',
@@ -610,7 +610,22 @@ function youtube_field_widget_form(&$form, &$form_state, $field, $instance, $lan
       '#weight' => 1,
     );
   }
-
+  // If Video ID, and optionally start time, are shown, show text to explain
+  // that values will be updated after the node is saved.
+  if (isset($element['video_id'])) {
+    if (isset($element['video_start_time'])) {
+      $explainer_text = t('Video ID and start time will reflect any changes in the URL after the node is saved.');
+    }
+    else {
+      $explainer_text = t('Video ID will reflect any changes in the URL after the node is saved.');
+    }
+    $element['video_info_explainer'] = array(
+      '#prefix' => '<div class="youtube-video-explainer">',
+      '#markup' => $explainer_text,
+      '#suffix' => '</div>',
+      '#weight' => 1.5,
+    );
+  }
   return $element;
 }
 
