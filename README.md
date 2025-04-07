@@ -78,11 +78,12 @@ Current Maintainers
 - Paul Davis (https://github.com/hellomrcat)
 - Jen Lampton (https://github.com/jenlampton)
 - Daniel Rose (https://github.com/danielrose28)
-- [Martin Price](https://github.com/yorkshire-pudding) - [System Horizons Ltd](https://www.systemhorizons.co.uk)
+- [Martin Price](https://github.com/yorkshire-pudding)
 
 
 Credits
 -------
 
-This module was originally written for Drupal by Jen Lampton
-(https://github.com/jenlampton).
+- Supporting organization [System Horizons Ltd](https://www.systemhorizons.co.uk)
+- Written for Drupal by [Jen Lampton](https://github.com/jenlampton).
+
